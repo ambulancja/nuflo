@@ -1,0 +1,319 @@
+
+\usepackage{xspace}
+\usepackage[all]{xy}
+\usepackage{wrapfig}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{xcolor}
+\usepackage{mathtools}
+
+\usepackage{hyperref}
+\usepackage{chngcntr}
+\usepackage{apptools}
+
+\input{prooftree}
+\newcommand{\indrulename}[1]{\texttt{\textup{#1}}}
+\newcommand{\indrule}[3]{
+\ensuremath{\begin{array}{c}
+  \prooftree #2
+    \justifies #3
+    \thickness=0.05em
+    \using \indrulename{\scriptsize{#1}}
+  \endprooftree
+\end{array}}}
+
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\theenumii}{\arabic{enumii}}
+\renewcommand{\theenumiii}{\arabic{enumiii}}
+\renewcommand{\theenumiv}{\arabic{enumiv}}
+%
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}}
+\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}}
+\renewcommand{\labelenumiv}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.\arabic{enumiv}}
+%
+\makeatletter
+\renewcommand\p@enumii{\theenumi.}
+\renewcommand\p@enumiii{\theenumi.\theenumii.}
+\renewcommand\p@enumiv{\theenumi.\theenumii.\theenumiii.}
+\makeatother
+
+%%% Theorem environments
+
+\theoremstyle{break}
+\newtheorem{dummythm}{dummythm}
+\newtheorem{lemma}[dummythm]{Lema}
+\newtheorem{convention}[dummythm]{Convención}
+\newtheorem{proposition}[dummythm]{Proposición}
+\newtheorem{theorem}[dummythm]{Teorema}
+\newtheorem{corollary}[dummythm]{Corolario}
+
+\theoremstyle{definition}
+\newtheorem{definition}[dummythm]{Definición}
+\newtheorem{example}[dummythm]{Ejemplo}
+\newtheorem{exercise}[dummythm]{Ejercicio}
+\newtheorem{algorithm}[dummythm]{Algoritmo}
+
+\theoremstyle{remark}
+\newtheorem{remark}[dummythm]{Observación}
+\newtheorem{notation}[dummythm]{Notación}
+
+\newcommand{\llem}[1]{\label{lemma:#1}}
+\newcommand{\rlem}[1]{Lema~\ref{lemma:#1}}
+\newcommand{\ldef}[1]{\label{def:#1}}
+\newcommand{\rdef}[1]{Definición~\ref{def:#1}}
+\newcommand{\lprop}[1]{\label{prop:#1}}
+\newcommand{\rprop}[1]{Proposición~\ref{prop:#1}}
+\newcommand{\lthm}[1]{\label{thm:#1}}
+\newcommand{\rthm}[1]{Teorema~\ref{thm:#1}}
+\newcommand{\lremark}[1]{\label{remark:#1}}
+\newcommand{\rremark}[1]{Observación~\ref{remark:#1}}
+\newcommand{\lcoro}[1]{\label{coro:#1}}
+\newcommand{\rcoro}[1]{Corolario~\ref{coro:#1}}
+\newcommand{\lsec}[1]{\label{section:#1}}
+\newcommand{\rsec}[1]{Sección~\ref{section:#1}}
+\newcommand{\lexample}[1]{\label{example:#1}}
+\newcommand{\rexample}[1]{Ejemplo~\ref{example:#1}}
+\newcommand{\leqn}[1]{\label{eqn:#1}}
+\newcommand{\reqn}[1]{(\ref{eqn:#1})}
+\newcommand{\lfig}[1]{\label{fig:#1}}
+\newcommand{\rfig}[1]{Figura~\ref{fig:#1}}
+
+%
+\newcommand{\defn}[1]{{\bf #1}}
+\newcommand{\eg}{{\em e.g.}\xspace}
+\newcommand{\ie}{{\em i.e.}\xspace}
+\newcommand{\ih}{{\em h.i.}\xspace}
+\newcommand{\etal}{et al.\xspace}
+\newcommand{\cf}{{\em cf.}\xspace}
+\newcommand{\ST}{\ |\ }
+\newcommand{\HS}{\hspace{.5cm}}
+\newcommand{\HStight}{\hspace{.2cm}}
+\newcommand{\VS}{\vspace{.5cm}}
+\renewcommand{\emptyset}{\varnothing}
+\newcommand{\set}[1]{\{#1\}}
+\newcommand{\Nat}{\mathtt{Nat}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\eqdef}{\overset{\mathrm{def}}{=}}
+\newcommand{\iffdef}{\overset{\mathrm{def}}{\iff}}
+\newcommand{\eqih}{\overset{\mathrm{h.i.}}{=}}
+\newcommand{\TODO}[1]{\textcolor{red}{TODO: #1}}
+\newcommand{\FIT}[1]{\resizebox{\hsize}{!}{#1}}
+
+\newcommand{\esub}[2]{[#1\backslash#2]}
+\newcommand{\hetofull}[1]{\xmapsto{\rulename{#1}}}
+\newcommand{\Var}{\mathsf{Var}}
+\newcommand{\Cons}{\mathsf{Con}}
+\newcommand{\Val}{\mathsf{Val}}
+\newcommand{\Type}{\mathsf{Type}}
+
+\newcommand{\Loc}{\mathsf{Loc}}
+\newcommand{\Asg}{\mathsf{Env}}
+
+%%%%
+\newcommand{\var}{x}
+\newcommand{\vartwo}{y}
+\newcommand{\varthree}{z}
+\newcommand{\varfour}{w}
+
+\newcommand{\cons}{{\bf c}}
+\newcommand{\constwo}{{\bf d}}
+\newcommand{\consthree}{{\bf e}}
+
+\newcommand{\tm}{t}
+\newcommand{\tmtwo}{s}
+\newcommand{\tmthree}{u}
+\newcommand{\tmfour}{r}
+\newcommand{\tmfive}{p}
+\newcommand{\tmsix}{q}
+
+\newcommand{\fix}[2]{\mathtt{fix}(#1.#2)}
+\newcommand{\unit}{{\bf ok}}
+\newcommand{\fail}{\mathtt{fail}}
+\newcommand{\FAIL}{\bot}
+\newcommand{\unif}{\overset{\bullet}{=}}
+\newcommand{\sym}{\texttt{\textup{<\!?\!>}}}
+\newcommand{\seq}{;}
+\newcommand{\alt}{\oplus}
+\newcommand{\assoc}[2]{[#1\backslash#2]}
+\newcommand{\anon}{\mathtt{X}}
+\newcommand{\anontwo}{\mathtt{Y}}
+
+\newcommand{\lam}[2]{\lambda #1.\,#2}
+\newcommand{\laml}[3]{\lambda^{#1} #2.\,#3}
+\newcommand{\fresh}[2]{\nu #1.\,#2}
+\newcommand{\sub}[2]{\{#1:=#2\}} % revisar sintaxis
+
+\DeclareMathOperator{\supp}{supp}
+\newcommand{\emptyEnv}{\epsilon}
+
+\newcommand{\emptylist}{\epsilon}
+
+\newcommand{\val}{\mathtt{v}}
+\newcommand{\valtwo}{\mathtt{w}}
+\newcommand{\aval}{\mathtt{a}}
+\newcommand{\avaltwo}{\mathtt{b}}
+
+\newcommand{\goals}{\mathsf{G}}
+\newcommand{\goalstwo}{\mathsf{H}}
+
+\newcommand{\fv}[1]{\mathsf{fv}(#1)}
+\newcommand{\locs}[1]{\mathsf{locs}(#1)}
+
+% Small-step semantics
+\newcommand{\ctxof}[1]{\langle#1\rangle}
+\newcommand{\ctxhole}{\Box}
+\newcommand{\SEP}{\mid\!\mid}
+\newcommand{\gctx}{\mathsf{C}}
+\newcommand{\gctxof}[1]{\gctx\ctxof{#1}}
+\newcommand{\wctx}{\mathsf{W}}
+\newcommand{\wctxof}[1]{\wctx\ctxof{#1}}
+
+\newcommand{\LeftRightarrow}{\Lleftarrow\!\!\!\!\Rrightarrow}
+\newcommand{\structeq}{\equiv}
+\newcommand{\permeq}{\sim}
+
+% Normal forms
+\newcommand{\rulename}[1]{\texttt{\textup{#1}}}
+
+\newcommand{\topartial}{\rightharpoonup}
+\newcommand{\tounifa}[1]{\mathrel{\rightsquigarrow_{\rulename{#1}}}}
+%\newcommand{\toca}[1]{\xrightarrow{#1}}
+%\newcommand{\rtoca}[1]{\mathrel{\xrightarrow{\rulename{#1}}\!\!\!\!\!\xrightarrow{}}}
+%\newcommand{\topar}[1]{\xRightarrow{#1\,}}
+\newcommand{\toca}[1]{
+  \def\tmp{#1}\ifx\tmp\empty
+    \rightarrow%
+  \else
+    \xrightarrow{\rulename{#1}}%
+  \fi}
+\newcommand{\rtoca}[1]{
+  \def\tmp{#1}\ifx\tmp\empty
+    \twoheadrightarrow%
+  \else
+    \mathrel{\xrightarrow{\rulename{#1}}\!\!\!\!\!\xrightarrow{}}%
+  \fi}
+\newcommand{\topar}[1]{
+  \def\tmp{#1}\ifx\tmp\empty
+    \Rightarrow
+  \else
+    \xRightarrow{#1\,}%
+  \fi
+}
+
+\newcommand{\prog}{P}
+\newcommand{\progtwo}{Q}
+\newcommand{\progthree}{R}
+
+% Locations
+\newcommand{\loc}{\ell}
+\newcommand{\loctwo}{\loc'}
+\newcommand{\locthree}{\loc''}
+
+\newcommand{\sctx}{\mathtt{L}}
+
+% Substitutions and unification
+\newcommand{\SUB}[1]{{}^{#1}}
+\newcommand{\subst}{\sigma}
+\newcommand{\substtwo}{\rho}
+\newcommand{\substthree}{\tau}
+\newcommand{\substa}{\alpha}
+\newcommand{\scomp}{\cdot}
+\newcommand{\sleq}{\lesssim}
+\newcommand{\mgu}[1]{\mathsf{mgu}(#1)}
+\newcommand{\bigalt}{\bigoplus}
+
+\newcommand{\devterm}[1]{#1^\circ}
+\newcommand{\devprog}[1]{#1^\bullet}
+\newcommand{\devgoals}[1]{\mathsf{goals}(#1)}
+
+\newcommand{\nprog}{\prog^\star}
+\newcommand{\nprogtwo}{\progtwo^\star}
+\newcommand{\ntm}{\tm^\star}
+\newcommand{\ntmtwo}{\tmtwo^\star}
+\newcommand{\stm}{S}
+\newcommand{\stmtwo}{S'}
+\newcommand{\stuck}{\bigtriangledown}
+
+%%%% Types
+
+\newcommand{\btyp}{\alpha}
+\newcommand{\btyptwo}{\beta}
+\newcommand{\btypthree}{\gamma}
+
+\newcommand{\constyp}[1]{\mathcal{T}_{#1}}
+
+\newcommand{\typ}{A}
+\newcommand{\typtwo}{B}
+\newcommand{\typthree}{C}
+
+\newcommand{\emptyctx}{\emptyset}
+\newcommand{\tctx}{\Gamma}
+\newcommand{\tctxtwo}{\Delta}
+\newcommand{\tctxthree}{\Sigma}
+\newcommand{\fctx}{\Phi}
+\newcommand{\fctxtwo}{\Psi}
+
+%%%% Denotational semantics
+\newcommand{\sembare}[1]{[\![#1]\!]}
+\newcommand{\semtyp}[1]{[\![#1]\!]}
+\newcommand{\seme}[2]{[\![#1]\!]_{#2}}
+\newcommand{\semf}[3][\fctx]{[\![#2]\!]^{#1}_{#3}}
+\newcommand{\semm}[3]{[\![#1]\!]\,#2\,#3}
+\newcommand{\powerset}[1]{\mathcal{P}(#1)}
+\newcommand{\binterp}[1]{\mathsf{S}_{#1}}
+\newcommand{\cinterp}[1]{\underline{#1}}
+\newcommand{\asg}{\rho}
+\newcommand{\asgextend}[2]{[#1\mapsto#2]}
+
+\newcommand{\metalam}[2]{\leftthreetimes #1.\,#2}
+
+\newcommand{\obj}{a}
+\newcommand{\objtwo}{b}
+\newcommand{\objthree}{c}
+\newcommand{\objfour}{d}
+\newcommand{\objfun}{f}
+\newcommand{\objfuntwo}{g}
+
+\newcommand{\mem}{\mu}
+\newcommand{\altt}{\boxplus}
+\newcommand{\failt}{\textsc{fail}}
+
+\newcommand{\lambdaunif}{\lambda^{\mathtt{U}}}
+
+\newcommand{\codesym}{\mathtt{C}}
+\newcommand{\allocsym}{\mathtt{A}}
+
+\colorlet{darkgreen}{green!60!black}
+\newcommand{\SeeAppendix}{\textcolor{darkgreen}{$\clubsuit$}}
+\newcommand{\SeeAppendixRef}[1]{\textcolor{darkgreen}{$\clubsuit$\,#1}}
+\newcommand{\WithProofs}[1]{\textcolor{darkgreen}{#1}}
+
+% Example
+\newcommand{\pairing}{\mathbf{t}}
+\newcommand{\walg}[1]{\mathbb{W}[#1]}
+
+% Language
+
+\newcommand{\chr}[1]{\texttt{'}\textcolor{black}{\texttt{#1}}\texttt{'}}
+\newcommand{\str}[1]{\texttt{"}\textcolor{black}{\texttt{#1}}\texttt{"}}
+\newcommand{\token}[1]{\textcolor{darkgreen}{\texttt{#1}}}
+\newcommand{\nonterminal}[1]{\textcolor{black}{{\it$\langle$#1$\rangle$}}}
+\newcommand{\nonEmpty}[1]{#1$_{1}$}
+\newcommand{\production}[2]{
+  \noindent
+  \begin{tabular}{lrp{10cm}}
+  #1 & $\xrightarrow{\hspace{.5cm}}$ & #2
+  \end{tabular}\\
+}
+\newcommand{\EMPTY}{$\epsilon$}
+\newcommand{\ALT}{
+  \\ & $\mid$ &
+}
+
+\newcommand{\nuflo}{Ñuflo\xspace}
+\newcommand{\modulo}[1]{\textcolor{purple}{#1}}
+
+

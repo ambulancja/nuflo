@@ -1,0 +1,65 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{framed}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{amsmath,amssymb,amsthm}
+
+\lstset{
+  frame=none,
+  xleftmargin=1cm,
+  stepnumber=1,
+  numberstyle=\ttfamily\tiny\color[gray]{0.3},
+  belowcaptionskip=\bigskipamount,
+  captionpos=b,
+  escapeinside={*'}{'*},
+  language=haskell,
+  tabsize=2,
+  commentstyle=\it,
+  keepspaces=true,
+  showspaces=false,
+  columns=flexible,
+  keywordstyle=\small\ttfamily,
+  basicstyle=\small\ttfamily,
+  showstringspaces=false,
+  inputencoding=utf8,
+  literate={->}{$\rightarrow$}1
+           {/=}{$\neq$}1
+           {\\}{$\lambda$}1
+           {L1}{$^{1}$}1
+           {L2}{$^{2}$}1
+           {á}{{\'a}}1
+           {é}{{\'e}}1
+           {í}{{\'i}}1
+           {ó}{{\'o}}1
+           {ú}{{\'u}}1
+           {Á}{{\'A}}1
+           {É}{{\'E}}1
+           {Í}{{\'I}}1
+           {Ó}{{\'O}}1
+           {Ú}{{\'U}}1
+           {ñ}{{\~n}}1
+           {Ñ}{{\~N}}1
+}
+
+\usepackage[normalem]{ulem}
+
+\renewcommand{\baselinestretch}{1.1} % interlineado
+\setlength\parindent{.6cm}           % identacion
+
+\input{macros}
+
+\title{El lenguaje funcional–lógico \nuflo}
+\author{}
+
+\begin{document}
+
+{\bf Nota.} Este documento es un fragmento del Seminario Final de
+Licenciatura en Informática de Federico Lochbaum
+en la Universidad Nacional de Quilmes.
+
+\input{nuflo}
+
+\end{document}
+

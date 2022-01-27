@@ -1,0 +1,2956 @@
+
+\section{Sintaxis léxica}
+
+En esta sección se describe la sintaxis léxica del lenguaje \nuflo.
+
+\subsection{Lexemas}
+
+El programa fuente es una cadena de
+caracteres Unicode que se asume representada
+en la codificación UTF-8.
+Un programa \nuflo se segmenta como una secuencia de
+``lexemas'' o {\em tokens}.
+Cada lexema viene acompañado de su nombre en \token{MAYÚSCULAS},
+al que se hará referencia en la gramática formal.
+\bigskip
+
+\noindent{\bf Blancos y comentarios.}
+
+En el proceso de análisis léxico, los caracteres
+en blanco sirven como delimitadores de lexemas,
+pero no componen lexemas por sí mismos.
+Los caracteres en blanco son:
+espacios (\verb|' '|),
+tabs (\verb|'\t'|),
+saltos de línea (\verb|'\n'|) y
+retornos de carro (\verb|'\r'|).
+
+Se ignoran también los comentarios en la entrada.
+Existen dos tipos de comentario:
+comentarios de línea comenzados en \verb|--| que se extienden hasta el
+siguiente salto de línea (\verb|'\n'|),
+y comentarios multilínea comenzados en \verb|{-| que se extienden hasta
+el siguiente \verb|-}|. Los comentarios multilínea pueden anidarse.
+
+Además, el lenguaje \nuflo es sensible a la identación.
+Los caracteres en blanco tienen relevancia para la aplicación de las
+reglas de {\em layout} que se describen en el siguiente apartado.
+\bigskip
+
+\noindent{\bf Literales.}
+
+Se distinguen tres tipos de literales:
+\begin{itemize}
+\item
+  \token{INT}: identifica los literales numéricos.
+  Un literal numérico se escribe como una secuencia no vacía
+  de dígitos decimales, reconocidos por la expresión regular \verb|[0-9]+|.
+\item
+  \token{CHAR}: identifica los literales de caracter.
+  Un literal de caracter se escribe como una comilla simple (\verb|'|)
+  seguida de un caracter, seguido de otra comilla simple.
+  Por ejemplo, \verb|'A'| identifica la letra A mayúscula.
+  Los caracteres literales pueden incluir secuencias de escape.
+  Se reconocen las siguientes secuencias de escape:
+  \begin{itemize}
+  \item[] \verb|'\\'|: contrabarra (\verb|\|).
+  \item[] \verb|'\''|: comilla simple (\verb|'|).
+  \item[] \verb|'\"'|: comilla doble (\verb|"|).
+  \item[] \verb|'\a'|: {\em alert / beep / bell}.
+  \item[] \verb|'\b'|: retroceso.
+  \item[] \verb|'\f'|: salto de página.
+  \item[] \verb|'\n'|: salto de línea.
+  \item[] \verb|'\r'|: retorno de carro.
+  \item[] \verb|'\t'|: tab.
+  \item[] \verb|'\v'|: tab vertical.
+  \end{itemize}
+\item
+  \token{STRING}: identifica los literales de cadena.
+  Un literal de cadena se escribe como una comilla doble (\verb|"|)
+  seguida de una secuencia de caracteres, seguido de otra comilla doble.
+  Las cadenas literales pueden incluir secuencias de escape
+  como las descriptas arriba.
+  Por ejemplo, \verb|"hola\n"| representa la cadena ``hola'' seguida
+  de un salto de línea.
+\end{itemize}
+
+\noindent{\bf Puntuación.}
+
+Las siguientes secuencias de caracteres
+se consideran signos de puntuación:
+\[
+\begin{tabular}{ll}
+  \token{DOT}       & \verb|.| \\
+  \token{LPAREN}    & \verb|(| \\
+  \token{RPAREN}    & \verb|)| \\
+  \token{LBRACE}    & \verb|{| \\
+  \token{RBRACE}    & \verb|}| \\
+  \token{SEMICOLON} & \verb|;| \\
+\end{tabular}
+\]
+
+\noindent{\bf Identificadores y palabras clave.}
+
+Un identificador se compone de una secuencia
+de caracteres consecutivos,
+cada uno de los cuales debe
+cumplir las siguientes condiciones:
+\begin{itemize}
+\item Debe ser un caracter Unicode imprimible.
+\item No debe ser un blanco
+      (\verb|' '|, \verb|'\t'|,
+       \verb|'\n'|, \verb|'\r'|).
+\item No debe ser un signo de puntuación
+      (\verb|'.'|, \verb|'('|, \verb|')'|,
+      \verb|'{'|, \verb|'}'|, \verb|';'|).
+\end{itemize}
+Notar que esto incluye caracteres alfanuméricos
+y símbolos (como \verb|+|, \verb|-|, \verb|*|, etc.).
+Notar también que esto incluye la coma (\verb|,|),
+de modo que ``\verb|a,b|'' es un solo identificador
+y no es equivalente
+a la secuencia de dos identificadores ``\verb|a, b|''
+ni a la secuencia de tres identificadores ``\verb|a , b|''.
+Además se imponen las siguientes dos condiciones:
+\begin{itemize}
+\item
+  El identificador no puede contener dos
+  guiones bajos (\verb|_|) consecutivos.
+  Así, por ejemplo,
+  \verb|if_then_else_| y \verb|_*_| son identificadores
+  válidos, mientras que
+  \verb|[__]| no lo es.
+\item
+  El identificador no debe constar
+  únicamente de dígitos decimales
+  (pues en tal caso, se trataría de un \token{INT}).
+\end{itemize}
+Como excepciones se incorporan dos sinónimos, que permiten escribir
+algunos símbolos muy frecuentes de manera alternativa en ASCII
+o con símbolos Unicode especiales:
+\begin{itemize}
+\item ``$\lambda$'' (caracter \verb|U+03bb|) es sinónimo de ``\verb|\|'',
+\item ``$\to$'' (caracter \verb|U+2192|) es sinónimo de ``\verb|->|''.
+\end{itemize}
+Además, los siguientes identificadores distinguidos son {\bf palabras clave}
+del lenguaje \nuflo:
+\[
+\begin{tabular}{ll}
+ \token{AS} & \texttt{as} \\
+ \token{CASE} & \texttt{case} \\
+ \token{CLASS} & \texttt{class} \\
+ \token{DATA} & \texttt{data} \\
+ \token{EQ} & \texttt{=} \\
+ \token{FRESH} & \texttt{fresh} \\
+ \token{IMPORT} & \texttt{import} \\
+ \token{IN} & \texttt{in} \\
+ \token{INFIX} & \texttt{infix} \\
+ \token{INFIXL} & \texttt{infixl} \\
+ \token{INFIXR} & \texttt{infixr} \\
+ \token{INSTANCE} & \texttt{instance} \\
+ \token{LAMBDA} & \verb|\| \HS\texttt{{\em ó}}\HS $\lambda$ \\
+ \token{LET} & \texttt{let} \\
+ \token{MODULE} & \texttt{module} \\
+ \token{OF} & \texttt{of} \\
+ \token{TYPE} & \texttt{type} \\
+ \token{WHERE} & \texttt{where} \\
+\end{tabular}
+\]
+Los identificadores que {\em no} son palabras clave corresponden al
+lexema \token{ID}. 
+
+\subsection{Reglas de {\em layout}}
+
+El lenguaje \nuflo es sensible a la identación.
+Algunas palabras clave, las llamadas palabras clave {\em offside},
+determinan el inicio de un ``bloque''.
+Las palabras clave {\em offside} son las siguientes:
+\[
+  \texttt{let}
+  \hspace{2cm}
+  \texttt{fresh}
+  \hspace{2cm}
+  \texttt{of}
+  \hspace{2cm}
+  \texttt{where}
+\]
+El lexema que se encuentra en la entrada
+después de una palabra clave {\em offside}
+determina el nivel de identación del bloque.
+El bloque se inicia con un token \token{LBRACE} (\verb|{|)
+que puede estar escrito explícitamente en la entrada
+o implícito por la presencia de la palabra clave
+{\em offside}.
+
+El bloque se mantiene abierto en tanto que
+todos los lexemas comiencen en una columna
+posterior a la indicada por el nivel de identación.
+El bloque se cierra en cuanto se encuentra
+un lexema que comienza en una columna estrictamente
+más chica que la indicada por el nivel de identación.
+El bloque se cierra con un token \token{RBRACE} (\verb|}|)
+que debe estar explícito si y sólo si el token de
+apertura del bloque estaba explícito.
+
+Además los bloques constan de elementos separados por
+el token \token{SEMICOLON} (\verb|;|), que puede estar explícito,
+o implícito cada vez que un lexema comienza exactamente
+en la columna correspondiente al nivel de identación
+del bloque.
+
+Por ejemplo, en el siguiente programa de entrada:
+\begin{center}
+\begin{tabular}{l}
+\begin{lstlisting}
+module A where
+null list = case list of
+              []      -> True
+              (_ : _) -> False
+main = print (null []) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Se insertan los delimitadores
+\token{LBRACE} (\verb|{|),
+\token{RBRACE} (\verb|}|) y
+\token{SEMICOLON} (\verb|;|) como sigue:
+\begin{center}
+\begin{tabular}{l}
+\begin{lstlisting}
+module A where {
+null list = case list of {
+              []      -> True
+            ; (_ : _) -> False
+            };
+main = print (null []) end
+}
+\end{lstlisting}
+\end{tabular}
+\end{center}
+
+
+\subsection{Analizador léxico}
+
+La responsabilidad del analizador léxico o {\em lexer} es
+segmentar el código fuente del programa en lexemas,
+verificando que el programa respete las reglas impuestas por la sintaxis
+léxica
+y construyendo una representación intermedia del programa,
+entendido como una secuencia de tokens.
+Concretamente, se implementa como una función en Haskell:
+\begin{center}
+\begin{tabular}{l}
+\begin{lstlisting}
+tokenize :: String -> [Token]
+\end{lstlisting}
+\end{tabular}
+\end{center}
+
+Los tokens se representan como un tipo de datos enumerado que, en el caso
+de los literales, viene acompañado además del dato correspondiente.
+Además, un token incluye información sobre la posición inicial y
+la posición final en la que se encuentra el lexema dentro del archivo fuente.
+Esta información es relevante tanto para posibilitar el reporte de errores
+(indicando número de fila y columna del error)
+como para la implementación de las reglas de {\em layout}, que son sensibles
+a la identación.
+
+El analizador léxico se encuentra en el módulo
+\modulo{Lexer} de la implementación de \nuflo.
+No presenta demasiadas dificultades
+desde el punto de vista de la implementación,
+salvo por las reglas de {\em layout}.
+\medskip
+
+\noindent{\bf Implementación de las reglas de {\em layout}.}
+
+El algoritmo que se utiliza para la resolución de las reglas de
+{\em layout} en el lenguaje es un algoritmo
+{\em ad hoc} que utiliza como referencia la documentación del
+reporte de Haskell 98~\cite{jones2003haskell}.
+Más específicamente, se sigue el algoritmo detallado en la sección 9.3
+de~\cite{jones2003haskell}, que implementa las reglas de {\em layout} para Haskell,
+con algunas adaptaciones.
+
+El efecto de resolver las reglas de {\em layout}
+resulta en la adición de llaves, es decir,
+los tokens \token{LBRACE} (\verb|{|) y \token{RBRACE} (\verb|}|),
+así como de puntos y coma,
+es decir el token \token{SEMICOLON} (\verb|;|)
+en los lugares donde las reglas de {\em layout} lo indiquen.
+
+Se dice que el programa resultante de aplicar este algoritmo
+se vuelve ``insensible a la identación'',
+ya que la información de dónde comienza y dónde termina cada bloque
+está determinada únicamente por los tipos de los tokens y no por
+sus posiciones.
+
+El algoritmo que implementa las reglas de {\em layout} se encuentra en
+el módulo \modulo{Lexer.Layout} de la implementación de \nuflo.
+
+\section{Sintaxis}
+
+La sintaxis de \nuflo está influenciada por la sintaxis de lenguajes
+como Haskell y Agda.
+En particular, \nuflo toma prestada de Agda
+la notación para definir operadores prefijos, sufijos, infijos y,
+más en general, operadores {\em multifijos}, especificando
+su asociatividad y su nivel de precedencia,
+lo cual le proporciona al programador una mayor versatilidad para crear
+nuevas operaciones.
+
+Los operadores multifijos se representan por medio de un identificador
+que incluye una o varias veces el caracter guión bajo (\verb|_|).
+Por ejemplo, si
+se declara el operador \verb|if_then_else_| con nivel de precedencia 10,
+y el operador \verb|_*_| con nivel de precedencia 20 y asociatividad
+a derecha, la siguiente expresión:
+\begin{center}
+\begin{tabular}{l}
+\begin{lstlisting}
+if a then b * c * d else e
+\end{lstlisting}
+\end{tabular}
+\end{center}
+es equivalente a esta otra:
+\begin{center}
+\begin{tabular}{l}
+\begin{lstlisting}
+if_then_else_ a (_*_ b (_*_ c d)) e
+\end{lstlisting}
+\end{tabular}
+\end{center}
+
+\subsection{Declaraciones}
+
+Un programa en \nuflo se compone de varios módulos.
+Cada módulo incluye su declaración (ej. \verb|module Data.List where|)
+y una lista de módulos que se importan (ej. \verb|import Data.Char|).
+A continuación, sigue una {\em lista de declaraciones}.
+Cada declaración puede ser de alguna de las siguientes formas:
+\begin{enumerate}
+  \item {\bf Declaración de un operador}:
+      \[ {\small \texttt{infixl 20 $\_$+$\_$}} \]
+    Conformada por el tipo de asociatividad del operador:
+    ya sea si asocia a derecha (\verb|infixr|), a
+    izquierda (\verb|infixl|)
+    o si es no asociativo (\verb|infix|).
+    En la declaración se incluye además
+    un número natural que indica el nivel de precedencia
+    y el nombre del operador, que debe incluir al menos un guión bajo (\verb|_|).
+  \item {\bf Declaración de un tipo de datos}:
+      \begin{center}
+      \begin{tabular}{l}
+      \begin{lstlisting}
+data Tree a where
+  Nil : Tree a
+  Bin : Tree a -> a -> Tree a -> Tree a
+      \end{lstlisting}
+      \end{tabular}
+      \end{center}
+    Similar a la notación de Haskell, un tipo de datos
+    se declara a través de un constructor de tipo con sus parámetros formales,
+    seguido de un bloque de signaturas de tipo para cada uno
+    de los constructores del tipo.
+
+  \item {\bf Declaración de un sinónimo de tipos}:
+      \[ {\small \texttt{ type TreeList a = Tree (List a)}} \]
+      
+    Una declaración de tipo puede verse como un {\em alias}, donde
+    a partir de tipos ya definidos se define un nuevo tipo de datos,
+    con idéntica notación a la usada en Haskell para el mismo propósito.
+
+  \item {\bf Declaración de una clase}:
+      \begin{center}
+      \begin{tabular}{l}
+      \begin{lstlisting}
+class Monad m where
+  return : a -> m a 
+  _>>=_  : m a -> (a -> m b) -> m b
+      \end{lstlisting}
+      \end{tabular}
+      \end{center}
+    La declaración de una clase está conformada por el nombre de la clase,
+    seguido por la variable de tipo ligada en las definiciones de los métodos abstractos.
+    A continuación, se incluye un bloque de signaturas
+    que determinan los tipos de los métodos de la clase.
+    La sintaxis es similar a la de las declaraciones de {\em typeclasses} en Haskell.
+  \item {\bf Declaración de una instancia}:
+      \begin{center}
+      \begin{tabular}{l}
+      \begin{lstlisting}
+instance Monad List where
+  return x = x : []
+  xs >>= f = concatMap f xs
+      \end{lstlisting}
+      \end{tabular}
+      \end{center}
+    La declaración de una instancia está conformada por el nombre de la clase
+    acompañada del tipo que la implementa.
+    El tipo debe ser siempre de la forma \verb|(C a1 ... an)|
+    donde \verb|C| es el nombre de un constructor,
+    y \verb|a1|, $\hdots$, \verb|an| son variables de tipo.
+    Además se debe dar una definición para cada uno de los {\em métodos}
+    requeridos por esa clase.
+
+    La notación es similar a la de las declaraciones de instancia Haskell,
+    con la diferencia de cómo se expresan las instancias en las cuales se
+    requieren a su vez restricciones de clase para las variables de tipo.
+    Por ejemplo, una lista de elementos implementa la clase \verb|Show|
+    si a su vez el tipo de sus elementos implementa la clase \verb|Show|:
+      \begin{center}
+      \begin{tabular}{l}
+      \begin{lstlisting}
+instance Show (List a) {Show a} where
+  show []       = "[]"
+  show (x : xs) = show x ++ " : " ++ show xs
+      \end{lstlisting}
+      \end{tabular}
+      \end{center}  
+    Si hay varias restricciones de clase se separan con punto y coma (\verb|;|),
+    por ejemplo \verb|{Show a; Ord a; Eq b}|.
+
+  \item {\bf Declaración de un valor o una función/relación}:
+      \[ {\small \texttt{fix  f  = f  (fix  f)}} \]
+
+    Los valores (que representan datos, o funciones/relaciones)
+    se definen a través de ecuaciones.
+    Cada ecuación contribuye a darle valor a la variable que se encuentra en la {\em cabeza}
+    de la expresión del lado izquierdo.
+    (La cabeza de una expresión \verb|e| es la expresión
+    \verb|e'| tal que \verb|e| se escribe como una aplicación
+    \verb|e' x1 ... xn|, y además \verb|e'| no es una aplicación).
+
+    Además, cada ecuación puede venir seguida de una cláusula \verb|where|:
+      \begin{center}
+      \begin{tabular}{l}
+      \begin{lstlisting}
+partes []       = [] : []
+partes (x : xs) = p ++ map (_:_ x) p
+  where p = partes xs
+      \end{lstlisting}
+      \end{tabular}
+      \end{center}
+
+  \item {\bf Declaración de una signatura de tipo}:
+      \[ {\small \texttt{ elem : a -> List a -> Bool    \ \ \ \{Eq a\} }} \]
+
+    Las declaraciones de valores pueden venir acompañadas de signaturas de tipo.
+    Una signatura de tipo está conformada por un identificador, seguido del
+    símbolo \verb|:|, seguido de una expresión que representa el tipo.
+    A continuación, opcionalmente, se incluyen restricciones de clase
+    para las variables tipo, encerradas entre llaves.
+    Como ya fue mencionado, si hay varias restricciones de clase,
+    se separan con punto y coma (\verb|;|), por ejemplo \verb|{Show a; Ord a; Eq b}|.
+\end{enumerate}
+
+\subsection{Expresiones}
+
+Por otro lado, los tipos, así como el lado izquierdo y el lado derecho
+de las ecuaciones son {\bf expresiones}.
+Las expresiones pueden ser, inductivamente, un {\em átomo}
+o una aplicación de una expresión a otra,
+teniendo en cuenta que la aplicación es asociativa a izquierda,
+de modo que \verb|f x y z = ((f x) y) z|.
+Se respetan las asociatividades y niveles de precedencia declarados para
+los operadores multifijos, y se pueden utilizar paréntesis para agrupar
+expresiones (desestimando las declaraciones de asociatividad y precedencia).
+Los átomos son los siguientes:
+
+\begin{enumerate}
+\item {\bf Nombre calificado:}
+  un átomo puede ser un {\em nombre calificado} (también llamado \verb|QName|),
+  es decir un identificador, posiblemente prefijado por el nombre del módulo
+  en el que está declarado.
+  Por ejemplo, son nombres calificados:
+  \[ {\small
+      \texttt{omega} \HS
+      \texttt{if\_then\_else\_} \HS
+      \texttt{\_*\_} \HS
+      \texttt{,} \HS
+      \texttt{Data.List.filter} \HS
+      \verb|Monad._>>=_|
+     }
+  \]
+\item
+  {\bf Constantes:}
+  las constantes pueden ser literales enteros positivos (ej. \verb|42|),
+  literales de caracter (ej. \verb|'a'|),
+  y strings (ej. \verb|"el perro feo"|).
+\item
+  {\bf Declaraciones locales (\verb|let|):}
+  la sintaxis de una declaración local es de la forma
+  \[ {\small \texttt{let <declaraciones> in <expr>}} \]
+  donde \verb|<declaraciones>| es una secuencia de declaraciones
+  de tipo o de valor (ecuaciones). Por ejemplo:
+      \begin{center}
+      \begin{tabular}{l}
+      \begin{lstlisting}
+partes (x : xs) = let p  = partes xs
+                      p' = map (_:_ x) p
+                   in p ++ p'
+      \end{lstlisting}
+      \end{tabular}
+      \end{center}
+   Recordar que \verb|let| es una palabra clave {\em offside},
+   por lo cual todas las declaraciones deben alinearse en la misma
+   columna.
+\item
+  {\bf Abstracciones anónimas (\verb|\| ó $\lambda$):}
+  una abstracción anónima o ``lambda'' se acompaña
+  de una secuencia de {\em expresiones} que representan los parámetros
+  formales de la abstracción, seguida de una flecha \verb|->|,
+  y seguida de una expresión que representa el cuerpo de la abstraccion.
+  Por ejemplo, la composición se puede denotar a través de la siguiente
+  expresión:
+  \[ {\small \texttt{ $\backslash$ f g x ->  f (g x)}} \]
+  Observar que los parámetros formales pueden ser {\em patrones}
+  arbitrariamente complejos. Por ejemplo, la función/relación que recibe
+  una lista y devuelve su cola (o falla si la lista es vacía) se puede escribir como:
+  \[ {\small \texttt{ $\backslash$ (\_ : xs) ->  xs}} \]
+
+  Se puede presentar una ambigüedad con respecto a si
+  una variable que aparece dentro de un patrón
+  se trata de una variable ligada por esa abstracción,
+  o una variable ligada por alguna construcción más externa.
+  Por ejemplo, si el nombre \verb|Nil| no se encuentra declarado
+  en el contexto local,
+  en la abstracción \verb|(\ Nil -> True)|
+  el identificador \verb|Nil| se interpreta como el nombre del parámetro
+  formal, y así dicha abstracción representa
+  la función que constantemente devuelve la constante \verb|True|.
+  En cambio, si el nombre \verb|Nil| es un constructor ya declarado,
+  el identificador \verb|Nil| se interpreta como una referencia a ese
+  constructor, y así dicha abstracción representa
+  la función que devuelve \verb|True| cuando su parámetro
+  coincide con \verb|Nil| pero falla en caso contrario.
+
+  Para forzar a que un identificador dentro de un patrón se interprete
+  como un parámetro formal (y no como una referencia a un nombre externo),
+  se lo puede preceder de un punto (\verb|.|).
+  Por ejemplo, \verb|(\ (.Nil) -> Nil)| representa la función identidad,
+  independientemente de si \verb|Nil| ya se encontraba localmente declarado.
+\item
+  {\bf Alternativa por casos (\verb|case|):}
+  la alternativa por casos se escribe con la palabra clave \verb|case|,
+  seguida de una expresión a analizar, seguida de la palabra clave \verb|of|,
+  y seguida de una secuencia de ramas.
+
+  Cada rama representa el comportamiento ante una posible coincidencia,
+  formada por un {\em patrón}, seguido de una flecha (\verb|->|),
+  seguida de la expresión a evaluar en caso de que la expresión analizada
+  coincida con ese patrón. Por ejemplo:
+      \begin{center}
+      \begin{tabular}{l}
+      \begin{lstlisting}
+last lista = case lista of
+                 (x : []) -> x
+                 (_ : xs) -> last xs
+      \end{lstlisting}
+      \end{tabular}
+      \end{center}
+  Esta operación está emparentada con la sentencia ``\verb|switch|'' de otros lenguajes,
+  y sigue la notación del {\em case} de Haskell.
+  Recordar que \verb|of| es una palabra clave {\em offside}, por lo cual
+  las ramas deben estar alineadas sobre la misma columna.
+
+  Además, a diferencia de lo que ocurre en Haskell, las ramas
+  {\bf no} son mutuamente excluyentes, de manera tal que si una expresión
+  coincide con varios patrones, se devuelven los valores de todas las
+  ramas que coinciden, no determinísticamente.
+
+  Al igual que en el caso de las abstracciones anónimas,
+  se puede forzar a que una variable sea ligada localmente en esa rama
+  prefijándola por un punto (\verb|.|).
+\item
+  {\bf Introducción de variable fresca (\verb|fresh|):}
+  la operación de introducción de una variable fresca se escribe con la palabra
+  clave \verb|fresh|, seguida de una secuencia de identificadores,
+  seguida de la palabra clave \verb|in|, y seguida, por último,
+  de una expresión que denota el cuerpo de la operación.
+  Por ejemplo:
+  \[ {\small \verb|rotaciones lista = fresh x y in (lista ~ x ++ y) & (y ++ x)|} \]
+  Esta operación esta influenciada por la necesidad de instanciación de variables
+  frescas del paradigma lógico, aunque difiere de la sintaxis usada en Prolog.
+\end{enumerate}
+
+\subsection{Gramática formal}
+
+Formalmente, la gramática de \nuflo se define de la siguiente manera
+usando notación BNF:\\
+
+\production{\nonterminal{program}}{
+  \token{MODULE} \nonterminal{qname} \nonterminal{moduleExports} \token{WHERE}
+  \token{LBRACE} \nonterminal{moduleImports} \nonterminal{declaration*} \token{RBRACE}
+}
+
+\production{\nonterminal{qname}}{
+  \token{ID}
+  \ALT
+  \token{ID} \token{DOT} \nonterminal{qname}
+}
+
+\production{\nonterminal{moduleExports}}{
+  \EMPTY
+  \ALT
+  \token{LPAREN} \nonterminal{id*} \token{RPAREN}
+}
+
+\production{\nonterminal{id*}}{
+  \EMPTY
+  \ALT
+  \token{ID} \token{SEMICOLON} \nonterminal{id+}
+}
+
+\production{\nonterminal{id+}}{
+  \token{ID}
+  \ALT
+  \token{ID} \token{SEMICOLON} \nonterminal{id+}
+}
+
+\production{\nonterminal{moduleImports}}{
+  \EMPTY
+  \ALT
+    \token{IMPORT} \nonterminal{qname}  \nonterminal{optionalRenamings}  \nonterminal{moduleImports}
+}
+
+\production{\nonterminal{optionalRenamings}}{
+  \EMPTY
+  \ALT
+    \token{LPAREN} \nonterminal{renaming}* \token{RPAREN}
+}
+
+\production{\nonterminal{renaming+}}{
+  \nonterminal{renaming}
+  \ALT
+  \nonterminal{renaming} \token{SEMICOLON} \nonterminal{renaming+}
+}
+
+\production{\nonterminal{renaming*}}{
+  \EMPTY
+  \ALT
+  \nonterminal{renaming} \token{SEMICOLON} \nonterminal{renaming+}
+}
+
+\production{\nonterminal{renaming}}{
+  \token{ID}
+  \ALT
+  \token{ID} \token{AS} \token{ID}
+}
+
+\production{\nonterminal{declaration*}}{
+  \EMPTY
+  \ALT
+  \nonterminal{declaration+}
+}
+
+\production{\nonterminal{declaration+}}{
+  \nonterminal{declaration}
+  \ALT
+  \nonterminal{declaration} \token{SEMICOLON} \nonterminal{declaration+}
+}
+
+\production{\nonterminal{declaration}}{
+  % import
+  \token{IMPORT} \nonterminal{qname} \nonterminal{moduleImports}
+  \ALT
+  \token{IMPORT} \nonterminal{qname} \nonterminal{moduleImports} \token{AS} \token{ID}
+  \ALT
+  % Fixity declaration
+  \nonterminal{fixity} \token{INT} \token{ID}
+  \ALT
+  % Data declaration
+  \token{DATA} \nonterminal{expr} \token{WHERE} \token{LBRACE} \nonterminal{typeSignature*} \token{RBRACE}
+  \ALT
+  % Type declaration
+  \token{TYPE} \nonterminal{expr} \token{EQ} \nonterminal{expr}
+  \ALT
+  % Class declaration
+  \token{CLASS} \nonterminal{classname} \nonterminal{qname} \nonterminal{optionalConstraints}
+  \token{WHERE} \token{LBRACE} \nonterminal{typeSignature*} \token{RBRACE}
+  \ALT
+  % Instance declaration
+  \token{INSTANCE} \nonterminal{classname} \nonterminal{expr} \nonterminal{optionalConstraints}
+  \token{WHERE} \token{LBRACE} \nonterminal{declaration} \token{RBRACE}
+  \ALT
+  % Type signature
+  \nonterminal{typeSignature}
+  \ALT
+  % Value declaration
+  \nonterminal{equation}
+}
+
+\production{\nonterminal{fixity}}{
+  \token{INFIXL}
+  \ALT
+  \token{INFIXR}
+  \ALT
+  \token{INFIX}
+}
+
+\production{\nonterminal{typeSignature*}}{
+  \EMPTY
+  \ALT
+  \nonterminal{typeSignature+}
+}
+
+\production{\nonterminal{typeSignature+}}{
+  \nonterminal{typeSignature}
+  \ALT
+  \nonterminal{typeSignature} \token{SEMICOLON} \nonterminal{typeSignature+}
+}
+
+\production{\nonterminal{typeSignature}}{
+  \token{ID} \token{COLON} \nonterminal{expr} \nonterminal{optionalConstraints}
+}
+
+\production{\nonterminal{equation*}}{
+  \EMPTY
+  \ALT
+  \nonterminal{equation+}
+}
+
+\production{\nonterminal{equation+}}{
+  \nonterminal{equation}
+  \ALT
+  \nonterminal{equation} \token{SEMICOLON} \nonterminal{equation+}
+}
+
+\production{\nonterminal{equation}}{
+  \nonterminal{expr} \token{EQ} \nonterminal{expr}
+  \ALT
+  \nonterminal{expr} \token{EQ} \nonterminal{expr} \token{WHERE}
+    \token{LBRACE} \nonterminal{declaration*} \token{RBRACE}
+}
+
+\production{\nonterminal{optionalConstraints}}{
+  \EMPTY
+  \ALT
+  \token{LBRACE} \nonterminal{constraint*} \token{RBRACE}
+}
+
+\production{\nonterminal{constraint*}}{
+  \EMPTY
+  \ALT
+  \nonterminal{constraint+}
+}
+
+\production{\nonterminal{constraint+}}{
+  \nonterminal{constraint}
+  \ALT
+  \nonterminal{constraint} \token{SEMICOLON} \nonterminal{constraint+}
+}
+
+\production{\nonterminal{constraint}}{
+  \nonterminal{classname} \nonterminal{qname}
+}
+
+\production{\nonterminal{classname}}{
+  \nonterminal{qname}
+}
+
+\production{\nonterminal{expr}}{
+  \nonterminal{atom}
+  \ALT
+  \nonterminal{atom} \nonterminal{expr}
+}
+
+\production{\nonterminal{atom}}{
+  \nonterminal{qname}
+  \ALT
+  \token{DOT} \token{ID}
+  \ALT
+  \token{INT}
+  \ALT
+  \token{CHAR}
+  \ALT
+  \token{STRING}
+  \ALT
+  \token{LPAREN} \nonterminal{expr} \token{RPAREN}
+  \ALT
+  \token{LET} \token{LBRACE} \nonterminal{declaration*} \token{RBRACE} \token{IN} \nonterminal{expr}
+  \ALT
+  \token{LAMBDA} \nonterminal{id*} \token{ARROW} \nonterminal{expr}
+  \ALT
+  \token{CASE} \nonterminal{expr} \token{OF} \token{LBRACE} \nonterminal{branch*} \token{RBRACE}
+  \ALT
+  \token{FRESH} \token{LBRACE} \nonterminal{idseq*} \token{RBRACE} \token{ID} \nonterminal{expr}
+}
+  
+\production{\nonterminal{idseq*}}{
+  \EMPTY
+  \ALT
+  \nonterminal{id*} \token{SEMICOLON} \nonterminal{idseq+}
+}
+
+\production{\nonterminal{idseq+}}{
+  \nonterminal{id*}
+  \ALT
+  \nonterminal{id*} \token{SEMICOLON} \nonterminal{idseq+}
+}
+
+\production{\nonterminal{id*}}{
+  \EMPTY
+  \ALT
+  \token{ID} \nonterminal{id*}
+}
+
+\production{\nonterminal{branch*}}{
+  \EMPTY
+  \ALT
+  \nonterminal{branch+}
+}
+
+\production{\nonterminal{branch+}}{
+  \nonterminal{branch}
+  \ALT
+  \nonterminal{branch} \token{SEMICOLON} \nonterminal{branch+}
+}
+
+\production{\nonterminal{branch}}{
+  \nonterminal{atom} \token{ARROW} \nonterminal{expr}
+}\\
+
+\subsection{Analizador sintáctico}
+
+En esta sección se detalla el funcionamiento
+del analizador sintáctico de \nuflo.
+El {\em parser} de \nuflo está implementado manualmente, utilizando un método de {\bf descenso recursivo}
+{\em ad hoc} (sin recurrir a herramientas como generadores de parsers).
+
+El analizador sintáctico puede verse como una función del siguiente tipo:
+\[ {\small \texttt{parse :: $[$Token$]$ -> AST}} \]
+que recibe un programa ya segmentado en lexemas, es decir una lista de {\em tokens},
+y retorna el árbol de sintaxis abstracta (AST) correspondiente a dicho programa.
+
+Los aspectos clave de la implementación del {\em parser} son
+el detalle del análisis de expresiones que involucran operadores multifijos,
+así como la estructura del {\em árbol de sintaxis abstracta}.
+
+El {\em parser}, al igual que el {\em lexer}, tiene dos tareas.
+La primera de ellas es detectar errores de sintaxis en la entrada.
+Por otra parte, en caso de que el programa sea gramaticalmente correcto,
+se debe construir una representación interna arbórea
+que representa abstractamente la estructura de la expresión.
+Por ejemplo, en el AST no se incluyen ciertos elementos como puntuación
+no esencial o delimitadores.
+
+\subsubsection{Estructura del AST}
+
+Un programa \nuflo se representa como un valor de tipo \verb|Program| en Haskell.
+Un nodo \verb|Program| es a su vez una lista de nodos \verb|Declaration|.
+Los nodos de tipo \verb|Declaration| representan las declaraciones que pueden
+encontrarse en un programa.
+Pueden tener las siguientes formas, con sus respectivos campos:
+\begin{enumerate}
+  \item \verb|DataDeclaration|: declaración de un tipo de datos inductivo.
+    \begin{itemize}
+    \item
+      \verb|dataType :: Expr| \hfill \verb|--| Tipo de datos.
+    \item
+      \verb|dataConstructors :: [Signature]| \hfill \verb|--| Lista de constructores.
+    \end{itemize}
+  \item \verb|TypeDeclaration|: declaración de un sinónimo de tipos.
+    \begin{itemize}
+    \item
+      \verb|typeType :: Expr| \hfill \verb|--| Tipo de datos.
+    \item
+      \verb|typeValue :: Expr| \hfill \verb|--| Definición.
+    \end{itemize}
+  \item \verb|TypeSignature:| declaración de tipo para un identificador.
+    \begin{itemize}
+    \item \verb|typeSignature :: Signature| \hfill \verb|--| Declaración.
+    \end{itemize}
+
+  \item \verb|ValueDeclaration:| declaración de un valor (ecuación).
+    \begin{itemize}
+    \item \verb|declEquation :: Equation| \hfill \verb|--| Ecuación.
+    \end{itemize}
+
+  \item \verb|ClassDeclaration:| declaración de una clase.
+    \begin{itemize}
+    \item \verb|className :: QName| \hfill \verb|--| Nombre de la clase.
+    \item \verb|classTypeName :: QName| \hfill \verb|--| Parámetro formal.
+    \item \verb|classMethods :: [Signature]| \hfill \verb|--| Signaturas de métodos.
+    \end{itemize}
+
+  \item \verb|InstanceDeclaration:| declaración de una instancia.
+    \begin{itemize}
+    \item \verb|instanceClassName :: QName| \hfill \verb|--| Nombre de la clase.
+    \item \verb|instanceType :: Expr| \hfill \verb|--| Tipo instanciado.
+    \item \verb|instanceConstraints :: [Constraint]| \hfill \verb|--| Restricciones de clase.
+    \item \verb|instanceMethods :: [Equation]| \hfill \verb|--| Definiciones de métodos.
+    \end{itemize}
+\end{enumerate}
+
+Los nodos de tipo \verb|Signature| representan la declaración del tipo
+de un nombre (que puede ser una función/relación, un constructor, un
+método, etc.). Tiene los siguientes campos:
+\begin{itemize}
+\item \verb|signatureName :: QName| \hfill \verb|--| Nombre declarado.
+\item \verb|signatureType :: Expr| \hfill \verb|--| Tipo.
+\item \verb|signatureConstraints :: [Constraint]| \hfill \verb|--| Restricciones de clase.
+\end{itemize}
+
+Los nodos de tipo \verb|Equation| representan las ecuaciones
+o declaraciones de valores. Tiene los siguientes campos:
+\begin{itemize}
+\item \verb|equationLHS :: Expr| \hfill \verb|--| Lado izquierdo de la ecuación.
+\item \verb|equationRHS :: Expr| \hfill \verb|--| Lado derecho de la ecuación.
+\end{itemize}
+
+Los nodos de tipo \verb|Constraint| representan restricciones de clase
+asociadas a una variable de tipo. Tiene los siguientes campos:
+\begin{itemize}
+\item \verb|constraintClassName :: QName| \hfill \verb|--| Nombre de la clase.
+\item \verb|constraintTypeName :: QName| \hfill \verb|--| Variable de tipo.
+\end{itemize}
+
+Los nodos de tipo \verb|CaseBranch| representan las ramas
+de una alternativa por casos (\verb|case|). Tiene los siguientes campos:
+\begin{itemize}
+\item \verb|caseBranchPattern :: Expr| \hfill \verb|--| Patrón.
+\item \verb|caseBranchResult :: Expr| \hfill \verb|--| Cuerpo de la rama.
+\end{itemize}
+
+Los nodos de tipo \verb|Expr| representan expresiones.
+Pueden tener las siguientes formas:
+\begin{enumerate}
+
+  \item \verb|(EVar x)|: representa una variable, donde \verb|x :: QName| es su nombre.
+
+  \item \verb|(EUnboundVar x)|:
+    representa una variable de nombre \verb|x :: QName|
+    que está explícitamente ligada por el patrón
+    actual, lo que se indica con un punto (\verb|.|) en el código fuente,
+  
+  \item \verb|(EInt n)|: representa una constante entera de valor \verb|n :: Integer|.
+
+  \item \verb|(EChar c)|: representa una constante de caracter de valor \verb|c :: Char|.
+
+  \item \verb|(EApp e1 e2)|: representa la aplicación de la función \verb|e1 :: Expr| al argumento \verb|e2 :: Expr|.
+
+  \item \verb|(ELambda e1 e2)|: representa una abstracción donde
+  la expresión \verb|e1 :: Expr| representa el patrón
+  y la expresión \verb|e2 :: Expr| representa el cuerpo.
+  
+  \item \verb|(ELet decls e)|: representa una declaración local (\verb|let|),
+  conformada por una {\em lista} de declaraciones \verb|decls :: [Declaration]|
+  y un cuerpo \verb|e :: Expr|.
+  
+  \item \verb|(ECase e branches)|: representa una alternativa por casos (\verb|case|)
+  conformada por una expresión \verb|e :: Expr| a analizar
+  y una {\em lista} de ramas \texttt{branches :: [CaseBranch]}.
+  
+  \item \verb|(EFresh x e)|: representa la introducción de la variable fresca \verb|x :: QName|
+  ligada en el cuerpo \verb|e :: Expr|.
+  
+  \item \verb|(EPlaceholder id)|:
+  este nodo del AST no corresponde a una construcción que pueda escribir el usuario.
+  Es utilizado por el inferidor de tipos, y representa un hueco a rellenar
+  con la implementación de los métodos que imponen las restricciones de clase.
+  Esto es, en caso de tener una función polimórfica que
+  depende de una variable de tipo
+  que se incluye con restricciones de clase,
+  la función depende de la instancia de la clase que satisface dicha restricción.
+  El inferidor de tipos introduce explícitamente estos ``huecos'' o ``{\em placeholders}'',
+  y los completa en diferido a la hora de resolver las restricciones de clase.
+  Cada nodo \verb|EPlaceholder| viene acompañado de un \verb|id|
+  de tipo \verb|PlaceholderId|, que no es más que un número que sirve
+  para identificar internamente a dicho hueco.
+\end{enumerate}
+
+Los nodos del AST describen abstractamente las construcciones del lenguaje.
+Además, cada nodo del AST incluye información sobre la posición de cada subexpresión en el
+código fuente del programa. Esto es relevante para el reporte de errores.
+
+\subsubsection{Análisis de operadores multifijos}
+
+Como se mencionó anteriormente, el analizador sintáctico respeta las declaraciones
+de asociatividad y precedencia de cada operador multifijo.
+El análisis sintáctico de expresiones que incluyen operadores multifijos se
+resuelve con un algoritmo {\em ad hoc} que se describe a continuación.
+
+Debemos tener en cuenta que en cualquier expresión pueden aparecer combinaciones arbitrarias
+de aplicaciones de operadores multifijos con diversas asociatividades y niveles
+de precedencia. Los operadores pueden aparecer dentro o fuera de paréntesis, que deben
+respetarse siguiendo la convención usual de paréntesis. Por esto, el analizador sintáctico
+debe utilizar una {\em tabla de precedencia} que reúne la información sobre la
+asociatividad y los niveles de precedencia de cada uno de los operadores.
+Esto no es tan sencillo porque en \nuflo los operadores pueden estar declarados
+por el usuario. Esto implica que el {\em parser}, previo a realizar el análisis del programa,
+debe recolectar todas las definiciones de operadores multifijos,
+construyendo la tabla de precedencia y almacenando el tipo de asociatividad y
+el nivel de precedencia de cada operador.
+Además, se mantiene registro en la tabla acerca de cuáles nombres
+conforman {\em partes} de algún operador.
+Por ejemplo, si el usuario declara el siguiente operador:
+\begin{center}
+\begin{tabular}{l}
+\begin{lstlisting}
+infix 20 if_then_else_
+\end{lstlisting}
+\end{tabular}
+\end{center}
+los identificadores \texttt{if}, \texttt{then} y \texttt{else} se registran
+como {\em partes} de algún operador.
+Notar que un mismo identificador puede componer varios operadores diferentes.
+Por ejemplo, si el operador \texttt{if\_then\_else} ya se encuentra definido,
+puede definirse otro operador \texttt{unless\_then\_}, a pesar de que el
+identificador \texttt{then} sea parte de ambos operadores.
+
+El algoritmo para analizar sintácticamente una expresión es un algoritmo recursivo
+que tiene como parámetro un nivel $\ell$
+y analiza sintácticamente una expresión de nivel $\ell$.
+Las expresiones de nivel $\ell$ pueden incluir
+operadores que tengan nivel de precedencia $\ell$ o mayor que $\ell$
+{\em no rodeados de paréntesis}.
+Además, pueden incluir cualquier otro operador {\em rodeado de paréntesis},
+inclusive operadores con nivel de precedencia estrictamente menor que $\ell$.
+Supongamos, por ejemplo, que ya se encuentra construida la siguiente tabla de precedencia:
+\begin{center}
+\begin{tabular}{l|c|l}
+{\bf Operador}             & {\bf Precedencia} & {\bf Asociatividad} \\
+\hline
+\texttt{if\_then\_else\_}  & 20                & no asociativo \\
+\texttt{\_$\oplus$\_}      & 30                & asociativo a derecha \\
+\end{tabular}
+\end{center}
+Al analizar la expresión:
+\begin{center}
+\texttt{if a then e $\oplus$ f else g}
+\end{center}
+el analizador sintáctico procede del siguiente modo:
+\begin{enumerate}
+\item Comienza el análisis de una expresión de nivel $20$,
+      que es el menor nivel de precedencia presente en la tabla.
+\item Al encontrar el identificador \texttt{if}, que corresponde a una {\em parte}
+      de un operador de ese nivel, consume el operador
+      y registra que el prefijo consumido en el nivel actual es de la forma ``\texttt{if...}''.
+\item Como el prefijo ``\texttt{if...}'' no es la aplicación de un operador completo,
+      procede a analizar recursivamente una expresión de nivel $30$, que es el siguiente nivel de precedencia en la tabla.
+      Como resultado se consume el identificador \texttt{a} de la entrada
+      produciendo como resultado un AST $X$,
+      y el prefijo consumido en el nivel actual pasa a ser de la forma ``\texttt{if\_...}''
+\item Como el prefijo ``\texttt{if\_...}'' no es la aplicación de un operador completo
+      y el identificador \texttt{then} corresponde a una posible continuación del prefijo
+      actual, se consume dicho identificador y el prefijo consumido en el nivel actual pasa a ser ``\texttt{if\_then...}''.
+\item Como el prefijo ``\texttt{if\_then...}'' no es la aplicación de un operador completo
+      procede a analizar recursivamente una expresión de nivel $30$, que es el siguiente nivel de precedencia en la tabla.
+      Como resultado se consume la subexpresión
+      \texttt{(if b then c else d) $\oplus$ e $\oplus$ f}
+      produciendo como resultado un AST $Y$,
+      y el prefijo consumido en el nivel actual pasa a ser de la forma ``\texttt{if\_then\_...}''.
+\item Como el prefijo ``\texttt{if\_then\_...}'' no es la aplicación de un operador completo
+      y el identificador \texttt{else} corresponde a una posible continuación del prefijo
+      actual, se consume dicho identificador y el prefijo consumido en el nivel actual pasa a ser ``\texttt{if\_then\_else...}''.
+\item Como el prefijo ``\texttt{if\_then\_else...}'' no es la aplicación de un operador completo
+      procede a analizar recursivamente una expresión de nivel $30$, que es el siguiente nivel de precedencia en la tabla.
+      Como resultado se consume el identificador \texttt{g}
+      produciendo como resultado un AST $Z$,
+      y el prefijo consumido en el nivel actual pasa a ser de la forma ``\texttt{if\_then\_else\_...}''.
+\item Finalmente, el prefijo ``\texttt{if\_then\_else\_...}'' sí corresponde 
+      a un operador completamente aplicado. El AST que se produce es el siguiente:
+\begin{center}
+\texttt{EApp (EApp (EApp (EVar \texttt{"}if\_then\_else\_\texttt{"}) $X$) $Y$) $Z$}
+\end{center}
+      que corresponde a la aplicación de la variable
+      \texttt{\texttt{"}if\_then\_else\_\texttt{"}}
+      a los argumentos $X$, $Y$ y $Z$.
+\end{enumerate}
+El mecanismo general de análisis sintáctico de operadores multifijos sigue
+estas mismas ideas, con adaptaciones para permitir operadores asociativos a
+izquierda y a derecha, y para reportar errores de sintaxis.
+
+En el caso particular del lenguaje \nuflo, notar que las operaciones
+de unificación, alternativa no deterministica y secuencia se expresan
+como operadores (\verb|_~_|, \verb`_|_`, y \verb|_&_| respectivamente). 
+Ninguno de estos operadores está presente explícitamente en la definición
+de la gramática. Son operadores primitivos que se incluyen
+por defecto en la tabla de precedencia del parser.
+
+\section{Sistema de módulos}
+
+En la sección anterior se mencionó que un programa consta de una secuencia de
+declaraciones de módulos.
+Cada módulo puede, dentro de su definición,
+especificar qué nombres serán exportados.
+Es decir, qué nombres definidos en este módulo podrán ser importados
+por otros módulos.
+La forma de declarar los nombres que importa un módulo es a través de
+la declaración \texttt{import}.
+
+Como se puede observar, en la gramática existen dos tipos de declaración \texttt{import}.
+Esto se debe a que el lenguaje provee mecanismos de {\em renombre}
+para evitar conflictos entre un nombre que se importa a través de una declaración \texttt{import}
+y algún nombre local.
+El sistema de módulos se describirá informalmente con algunos ejemplos.
+\medskip
+
+Si quisiéramos definir un nuevo módulo $C$ que se encuentra dentro de otro módulo $B$
+y al mismo tiempo $B$ se encuentra dentro de un módulo $A$,
+entonces la definición de $C$ tendrá la forma:
+\[ {\small \texttt{module A.B.C where}} \]
+Los nombres de los módulos deben respetar la estructura de directorios.
+Por ejemplo, el código correspondiente al módulo \verb|A.B.C|
+se encontrará dentro del archivo ``\verb|A/B/C.nu|''.
+
+Observar que, de esta manera, el módulo definido esta exportando todos los
+nombres locales que define.
+En caso de querer evitar esto, el sistema de módulos permite especificar
+qué nombres se desea exportar.
+Por ejemplo, si sólo se desea exportar los nombres
+\verb|Tree|, \verb|EmptyT|, \verb|NodeT| y \verb|height|,
+se puede hacer de la siguiente manera:
+
+\[ {\small \texttt{module A.B.C (Tree; EmptyT; NodeT; height) where}} \]
+Supongamos que se define ahora un módulo \verb|D| y que es necesario utilizar
+los nombres \verb|Tree|, \verb|EmptyT|, \verb|NodeT| y \verb|height| en \verb|D|.
+La forma de explícitar esta dependencia es mediante una declaración \texttt{import}
+como la siguiente:
+
+\[ {\small \texttt{import A.B.C}} \]
+
+\noindent Haciendo esto, tendremos acceso a todos los nombres exportados por el módulo
+\verb|A.B.C| dentro de \verb|D|.
+Por otro lado, se puede importar sólo un subconjunto de los nombres exportados
+por un módulo. Por ejemplo, si sólo es necesario utilizar el nombre \verb|EmptyT|
+del modulo \verb|A.B.C|, podemos hacerlo del siguiente modo:
+
+\[ {\small \texttt{import A.B.C (EmptyT)}} \]
+
+\noindent Con esta declaración, el identificador \verb|EmptyT| ``desnudo''
+se refiere al nombre \verb|EmptyT| declarado en el módulo \verb|A.B.C|.
+También se puede hacer referencia a cualquier otro
+nombre exportados por el módulo \verb|A.B.C|
+pero en ese caso será necesario {\em calificarlo}
+con el prefijo \verb|A.B.C|, escribiendo por ejemplo
+\verb|A.B.C.Tree|.
+Observar en particular que la declaración \verb|import A.B.C ()|
+importa todos los nombres del módulo \verb|A.B.C| pero siempre calificados.
+
+Una forma de abreviar el prefijo con el que se califican los nombres es
+mediante un {\em alias}.
+Para darle un alias local el módulo \verb|A.B.C| importado
+basta con utilizar la palabra clave {\em as}. Por ejemplo, la
+siguiente declaración:
+
+\[ {\small \texttt{import A.B.C () as Z}} \]
+
+permite usar todos los nombres exportados por el módulo \verb|A.B.C|
+siempre que se los califique con el prefijo \verb|Z|, por ejemplo, \verb|Z.EmptyT|.
+
+Por último, para evitar posibles conflictos de nombres,
+es posible importar nombres explícitamente de un módulo pero renombrándolos.
+Por ejemplo:
+
+\[ {\small \texttt{import A.B.C (EmptyT as Nil; NodeT as Bin)}} \]
+
+En conclusión, el sistema de módulos permite definir e importar módulos,
+especificando qué nombres se exportan e importan,
+en conjunto con un mecanismo de alias/renombre.
+
+\section{Sistema de tipos}
+
+Un sistema de tipos es un conjunto de
+reglas que se encargan de asociar un atributo o propiedad denominada {\em tipo}
+a cada fragmento del programa escrito en un lenguaje de programación.
+El propósito principal del sistema de tipos, desde nuestro punto de vista,
+es asegurar que los programas estén construidos de manera ``coherente'',
+reportando un error de tipos en el caso contrario.
+
+Muchos lenguajes, como C y Java por ejemplo, requieren anotaciones de tipos explícitas
+en el programa.
+Es decir que el programador debe declarar manualmente los tipos de todos los identificadores.
+Otros lenguajes, como OCaml y Haskell, usan un algoritmo de {\em inferencia de tipos}.
+Esto significa que el compilador es capaz de determinar los tipos de las expresiones
+analizando la estructura del programa.
+Este análisis se hace en forma estática, es decir en tiempo de compilación.
+Por ejemplo, si se declara la siguiente función en Haskell:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}{haskell}
+f x y = if y then x + 1 else 0
+\end{lstlisting}
+\end{tabular}
+\end{center}
+es posible inferir que el tipo de
+\verb|f| es \verb|Int -> Bool -> Int|.
+
+En esta sección se describe informalmente la implementación de un inferidor
+de tipos del lenguaje de programación \nuflo.
+El sistema de tipos de \nuflo sigue fuertemente
+la línea de los sistemas de la familia de Damas--Hindley--Milner.
+Esta familia de sistemas de tipos se caracteriza
+por contar con {\em polimorfismo paramétrico},
+es decir, funciones y tipos de datos ``genéricos''
+que operan con valores independientemente de su tipo.
+Por ejemplo, consideremos la siguiente definición de la función \texttt{map}:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}{haskell}
+map f []       = []
+map f (x : xs) = f x : map f xs
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Es posible darle muchos tipos distintos a \texttt{map}.
+Por ejemplo, los dos tipos siguientes
+son tipos posibles para la función \texttt{map}:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}{haskell}
+(Int -> Int) -> List Int -> List Int
+(Bool -> List Int) -> List Bool -> List (List Int)
+\end{lstlisting}
+\end{tabular}
+\end{center}
+El algoritmo de inferencia de tipos le otorga a \texttt{map}
+el tipo más general posible (conocido como su ``tipo principal''),
+que es de la forma:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}{haskell}
+(a -> b) -> List a -> List b
+\end{lstlisting}
+\end{tabular}
+\end{center}
+donde \verb|a| y \verb|b| son variables de tipo que pueden instanciarse
+en tipos arbitrarios cada una de las veces que se utiliza la función
+\verb|map|. Observar que los dos posibles tipos de \verb|map| mencionados
+más arriba son instancias de su tipo más general.
+\medskip
+
+Además, el sistema de tipos de \nuflo, igual que el sistema de tipos de
+Haskell, está extendido con {\em typeclasses} (o ``clases de tipos''),
+que agregan soporte para hacer {\em polimorfismo ad hoc}.
+Una {\em typeclass}, declarada con la palabra clave \verb|class|,
+representa una interfaz que depende de un tipo \verb|a|,
+especificada por un conjunto de nombres de métodos con sus
+respectivos tipos.
+Distintos constructores de tipos pueden implementar esa interfaz,
+lo que se expresa con la palabra clave \verb|instance|.
+
+Por ejemplo, el siguiente fragmento de código declara
+una clase \verb|Eq| que corresponde a los tipos que implementan
+un operador de igualdad \verb|_==_|,
+y define la instancia de la clase \verb|Eq| para el tipo de los {\em bits}.
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}{haskell}
+class Eq a where
+  _==_ : a -> a -> Bool
+
+data Bit where
+  Zero : Bit
+  One  : Bit
+
+instance Eq Bit where
+  (Zero == Zero) = True
+  (Zero == One)  = False
+  (One  == Zero) = False
+  (One  == One)  = True
+\end{lstlisting}
+\end{tabular}
+\end{center}
+
+\subsection{Inferencia de {\em kinds}}
+
+Algunos sistemas de tipos definen la noción de {\em kind},
+que corresponde a los ``tipos de las expresiones de tipos'',
+y sirven para garantizar la validez de las expresiones de tipos.
+Por ejemplo, si \texttt{Int} es un tipo y
+\texttt{List} es un constructor de tipos unario,
+entonces \texttt{(List Int)} y \texttt{(List (List Int))}
+serán tipos bien formados, en tanto que \texttt{(List List)} será
+una expresión de tipos mal formada, a la que no se le puede asignar
+un {\em kind}.
+\medskip
+
+Un {\em kind} puede tener alguna de las siguientes formas:
+\begin{itemize}
+  \item El {\em kind} de los tipos básicos se nota \texttt{*}.
+  \item Si \texttt{k$_1$} y \texttt{k$_2$} son {\em kinds},
+        $\mathtt{k_1} \rightarrow \mathtt{k_2}$
+        será el {\em kind} de los constructores de tipos
+        que reciben como parámetro un {\em tipo} de {\em kind} $\mathtt{k_1}$
+        y devuelven un tipo de {\em kind} $\mathtt{k_2}$.
+\end{itemize}
+Por ejemplo, \texttt{Int} es un tipo básico de {\em kind} $\mathtt{*}$,
+mientras que \texttt{List} es un constructor de tipos de {\em kind} $\mathtt{*} \rightarrow \mathtt{*}$.
+
+El proceso de inferencia de {\em kinds} es una etapa preliminar del sistema de tipos,
+que verifica la buena formación de las expresiones de tipo
+(de forma análoga al proceso de inferencia de tipos, que se encarga de comprobar
+la buena formación de las expresiones).
+
+A diferencia de los tipos,
+los {\em kinds} están completamente implícitos en los programas y no forman parte visible del lenguaje.
+Sólo existen durante el proceso de compilación de un programa.
+El mecanismo de inferencia de {\em kinds} debe determinar:
+\begin{itemize}
+\item
+  El {\em kind} de cada constructor de tipo y de sus parámetros.
+  Por ejemplo, en la definición:
+  \begin{center}
+  \begin{tabular}{c}
+  \begin{lstlisting}[mathescape=true]
+data Tree a b where
+  Nil  : Tree a b
+  Node : a -> b -> Tree a b -> Tree a b -> Tree a b
+  \end{lstlisting}
+  \end{tabular}
+  \end{center}
+  los parámetros \verb|a| y \verb|b| tienen kind $\mathtt{*}$
+  y el constructor de tipos \verb|Tree| tiene kind $\mathtt{*} \rightarrow \mathtt{*} \rightarrow \mathtt{*}$.
+\item
+  El {\em kind} de cada sinónimo de tipo que se defina
+  y de sus parámetros.
+  Por ejemplo, en la definición:
+  \begin{center}
+  \begin{tabular}{c}
+  \begin{lstlisting}[mathescape=true]
+type LT f = List (f Tree)
+  \end{lstlisting}
+  \end{tabular}
+  \end{center}
+  el parámetro \verb|f| tiene kind $(\mathtt{*} \rightarrow \mathtt{*} \rightarrow \mathtt{*}) \rightarrow \mathtt{*}$
+  y
+  el sinónimo de tipos \verb|LT| tiene kind $((\mathtt{*} \rightarrow \mathtt{*} \rightarrow \mathtt{*}) \rightarrow \mathtt{*}) \rightarrow \mathtt{*}$.
+\item El {\em kind} del parámetro de cada {\em typeclass}.
+  Por ejemplo, en la declaración:
+  \begin{center}
+  \begin{tabular}{c}
+  \begin{lstlisting}[mathescape=true]
+class Monad m where
+  return : a -> m a 
+  _>>=_  : (a -> m b) -> m a -> m b
+  \end{lstlisting}
+  \end{tabular}
+  \end{center}
+  el parámetro \verb|m| tiene {\em kind} $\mathtt{*} \rightarrow \mathtt{*}$.
+\end{itemize}
+
+Es posible que algunas partes de un {\em kind} inferido no estén completamente determinadas
+por las correspondientes definiciones, en tal caso se asume el valor por defecto $*$.
+Por ejemplo, podríamos asumir un {\em kind} arbitrario para el parámetro $a$ en la siguiente definición:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+data App f a where
+  A : f a $\rightarrow$ App f a
+\end{lstlisting}
+\end{tabular}
+\end{center}
+dándole el {\em kind} $(\mathtt{k} \rightarrow \mathtt{*}) \rightarrow \mathtt{k} \rightarrow \mathtt{*}$ y $\mathtt{k} \rightarrow \mathtt{*}$
+al constructor de tipos \verb|App|.
+Utilizando la asignación por defecto $\mathtt{k} = \mathtt{*}$
+su kind resulta ser
+$(\mathtt{*} \rightarrow \mathtt{*}) \rightarrow \mathtt{*} \rightarrow \mathtt{*}$.
+
+El proceso de inferencia de {\em kinds} se basa en un algoritmo de
+unificación de {\em kinds}.
+Por ejemplo, si sabemos que el constructor de tipos
+\verb|A| tiene {\em kind} $(\mathtt{k}_1 \rightarrow \mathtt{*})$
+y el constructor de tipos
+\verb|B| tiene {\em kind} $(\mathtt{*} \rightarrow \mathtt{*})$,
+al encontrar la expresión de tipos \verb|A B|,
+se debe unificar $\mathtt{k}_1$ con $(\mathtt{*} \rightarrow \mathtt{*})$.
+Así el {\em kind} del tipo \verb|A| será
+$((\mathtt{*} \rightarrow \mathtt{*}) \rightarrow \mathtt{*})$.
+Si el proceso de unificación falla, se reporta un error de {\em kinds}
+en el programa.
+
+\subsection{Inferencia de tipos}
+
+El problema de inferencia de tipos consiste en determinar, dado un término~$\tm$,
+si existen un contexto de tipado $\tctx$ y un tipo $\typ$ tales que el juicio
+de tipado $\tctx \vdash \tm : \typ$ es derivable (en algún sistema de tipos prefijado).
+
+En algunos sistemas de tipos, el problema de inferencia es decidible.
+Incluso si el problema de inferencia de tipos es indecidible,
+muchas veces es posible resolverlo para un subconjunto representativo
+o interesante de programas.
+
+Por ejemplo, Haskell~'98 implementa un sistema de tipos al estilo de
+Hindley--Milner~\cite{milner1978theory},
+que es una restricción de System~F en el que la inferencia de tipos
+resulta decidible.
+
+El sistema de tipos de \nuflo es similar al sistema de Haskell~'98.
+Nos limitaremos a describir {\em informalmente} la representación
+de los tipos y el mecanismo de inferencia.
+Distinguimos entre:
+{\em tipos} a secas,
+{\em tipos restringidos}
+y {\em esquemas} de tipos,
+que se definen como sigue:
+\[
+\begin{array}{llrll}
+\\
+  \textrm{Tipos (a secas)}
+                    & \tau
+                    &   ::= & \alpha              & \ \textrm{variable de tipos}    \\
+                &   & \vert & \tau\,\tau          & \ \textrm{aplicación}  \\
+                &   & \vert & \verb|?X|           & \ \textrm{metavariable de tipos}  \\
+  \textrm{Tipos restringidos}
+                    & Q
+                    &   ::= & \tau\,\,\{ C_1 \alpha_1; \hdots; C_n \alpha_n \} \\
+  \textrm{Esquemas} & E & ::= & \forall\ \alpha_1 \hdots \alpha_n\ .\ Q
+\\
+\end{array}
+\]
+Los {\em tipos} a secas designan un tipo particular.
+Un tipo puede ser una variable de tipos,
+que incluye tanto nombres de constructores de tipos (ej. \verb|Int|, \verb|Bool|, \verb|List|, \verb|_->_|),
+así como nombres de sinónimos de tipos (ej. \verb|String|, que es un renombre de \verb|List Char|)
+y variables de tipos que representan parámetros (ej. las variables \verb|a| y \verb|b| en el
+tipo \verb|(a -> b) -> List a -> List b|).
+Además, un tipo puede estar dado como la aplicación de un tipo $\tau_1$ a otro tipo $\tau_2$.
+Por ejemplo el tipo \verb|Int -> Bool|
+se representa internamente como \verb|((_->_ Int) Bool)|.
+Un tipo puede ser una metavariable de tipos (\verb|?X|, \verb|?Y|, \verb|?Z|, $\hdots$)
+que representa una {\em incógnita} que se puede instanciar durante el proceso
+de inferencia. El usuario no puede escribir un tipo que incluya metavariables
+de tipos. Las metavariables se introducen por el inferidor de tipos como parte de su
+mecanismo interno.
+
+Un {\em tipo restringido} es un tipo acompañado de una secuencia (posiblemente vacía)
+de restricciones de clase para algunas variables de tipo.
+Por ejemplo, \verb|a -> String {Show a}| podría ser el tipo de la función \verb|show|.
+
+Por último, un {\em esquema} de tipos es un tipo restringido
+en el que algunas variables de tipo se encuentran cuantificadas universalmente,
+es decir, con cuantificadores ``$\forall$''.
+Por ejemplo, $\forall \texttt{a}.\,(\texttt{a} \rightarrow \texttt{a})$
+es el esquema de tipos correspondiente a la función identidad.
+Notar que los cuantificadores sólo pueden aparecer afuera de una expresión
+de tipos.
+Por ejemplo, la expresión $\verb|Int| \rightarrow (\forall \alpha .\alpha)$
+no se puede escribir en la gramática de tipos definida más arriba.
+
+\bigskip
+
+En general, el algoritmo de inferencia de tipos Hindley--Milner
+infiere los tipos utilizando las siguientes tres estrategias:
+\begin{enumerate}
+\item {\bf Unificación.}
+  Dados dos tipos concretos $\tau_1$ y $\tau_2$,
+  el algoritmo de {\em unificación} instancia
+  las metavariables presentes en $\tau_1$ y $\tau_2$
+  para {\em igualar} en estas dos expresiones de tipos.
+  El algoritmo de unificación trabaja expandiendo primero
+  las definiciones de todos los sinónimos de tipos.
+  Por ejemplo, si se quiere unificar
+  el tipo \verb|List ?X| con el tipo \verb|String|,
+  se expande primero \verb|String| a \verb|List Char|,
+  y a continuación se instancia \verb|?X| en \verb|Char|.
+\item {\bf Generalización.}
+  Dado un tipo concreto $\tau$,
+  el procedimiento de {\em generalización}
+  lo convierte en un esquema de tipos,
+  cuantificando universalmente
+  todas las variables libres que aparezcan en $\tau$.
+  Por ejemplo,
+  el tipo concreto $\verb|a| \rightarrow \verb|List (a, b)|$
+  se generaliza al esquema $\forall\verb|a|.\,\forall\verb|b|.\,(\verb|a| \rightarrow \verb|List (a, b)|)$.
+  Una variante del procedimiento de generalización generaliza las {\em metavariables}
+  de un tipo. Por ejemplo $\verb|?X| \rightarrow \verb|?X|$
+  se puede generalizar al esquema $\forall\verb|a|.\,(\verb|a| \rightarrow \verb|a|)$.
+
+  Además, un requisito técnico es que las variables o metavariables
+  que se generalizan no pueden aparecer en contextos de tipado fuera del {\em scope} actual.
+  Por ejemplo, en esta definición de la identidad,
+  \verb|x| tiene tipo \verb|?X|,
+  y dentro del scope anidado la variable \verb|z| también tiene tipo \verb|?X|:
+  \begin{center}
+  \begin{tabular}{c}
+  \begin{lstlisting}[mathescape=true]
+id x = let z = x in z
+  \end{lstlisting}
+  \end{tabular}
+  \end{center}
+  sin embargo no se puede generalizar el tipo de \verb|z|, es decir
+  no se puede generalizar la variable \verb|?X|
+  para asociarle el esquema $(\forall\verb|a|.\,\verb|a|)$ a la variable \verb|z|.
+\item {\bf Instanciación.}
+  El procedimiento de {\em instanciación} recibe un esquema de tipos
+  e instancia todas las variables que se encuentren universalmente cuantificadas,
+  convirtiéndolas en metavariables frescas.
+  Por ejemplo, el esquema $\forall\verb|a|.\,\forall\verb|b|.\,(\verb|a| \rightarrow \verb|b| \rightarrow \verb|a|)$
+  se instancia en el tipo concreto $(\verb|?X| \rightarrow \verb|?Y| \rightarrow \verb|?X|)$,
+  donde \verb|?X| e \verb|?Y| son metavariables frescas.
+\end{enumerate}
+
+Usando estas tres estrategias, el mecanismo general de inferencia de tipos
+se basa en las siguientes ideas: 
+\begin{enumerate}
+\item
+  Se dispone de un entorno que le asocia un esquema de tipos a cada identificador,
+  incluyendo constructores y variables locales.
+  Por ejemplo, a la lista vacía \verb|[]| se le asocia el esquema de tipos
+  $\forall\verb|a|.\,\verb|List a|$.
+\item
+  Cada vez que se usa un constructor o variable, se busca el esquema de tipos
+  que tiene asociado en el entorno y se {\bf instancian} sus metavariables.
+  Por ejemplo, cada vez que se encuentra la lista vacía \verb|[]|
+  en una subexpresión, se instancia su esquema, creando una metavariable
+  fresca \verb|?X| y dándole tipo \verb|List ?X|.
+\item
+  Cada vez que se encuentra una aplicación, o cualquier otra expresión
+  que imponga restricciones sobre los tipos de las subexpresiones,
+  se {\bf unifican} los tipos que corresponda unificar.
+  Por ejemplo, si se encuentra la aplicación \verb|(e1 e2)|,
+  donde el tipo de \verb|e1| es $\tau_1$
+  y el tipo de \verb|e2| es $\tau_2$,
+  se unifica $\tau_1$ con $(\tau_2 \rightarrow \verb|?X|)$
+  donde \verb|?X| es una metavariable fresca que representa el tipo
+  de la aplicación.
+\item
+  Cada vez que se encuentra una declaración local,
+  ya sea como una ecuación en el programa principal,
+  o como una expresión \verb|(let x = e1 in e2)|
+  o como una cláusula de la forma \verb|(e2 where x = e1)|,
+  se infiere el tipo de la subexpresión \verb|e1|
+  y se {\bf generaliza} su tipo concreto a un esquema $E$.
+  A continuación, se infiere el tipo de la subexpresión \verb|e2|
+  en el entorno en el que la variable \verb|x| está asociada
+  al esquema $E$.
+\end{enumerate}
+
+El mecanismo de inferencia de \nuflo
+parte de estos fundamentos, pero es bastante más complejo, por dos razones.
+La primera razón es que se debe contemplar la presencia de definiciones
+{\bf recursivas}.
+La segunda razón es que el inferidor de tipos debe
+{\bf resolver las restricciones} de {\em typeclasses},
+seleccionando las {\em instancias}
+que implementan la clase en cuestión
+para los tipos concretos que aparezcan cada vez
+que se usa un método de la clase.
+
+Una característica clave del algoritmo de inferencia de tipos de \nuflo
+es que {\bf no solamente infiere los tipos de las subexpresiones}
+resolviendo las restricciones de {\em typeclasses},
+sino que además {\bf convierte el programa con typeclasses a un programa
+equivalente que no hace uso de typeclasses}.
+Para esto se siguen las ideas de Wadler y Blott~\cite{wadler1989make},
+utilizando de la técnica conocida como {\em pasaje de diccionarios}.
+La ilustraremos brevemente con un ejemplo:
+\begin{figure}[!htp]
+\begin{center}
+\begin{framed}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true,basicstyle=\footnotesize\tt]
+class EqShow a where
+  ==   : a -> a -> Bool
+  show : a -> String
+
+instance EqShow Bool where
+  == True True = True
+  show True = "True"
+  
+instance EqShow (List a) {EqShow a} where
+  == (Cons x xs) (Cons y ys) = (== x y) && == xs ys
+  show (Cons x xs) = show x ++ show xs
+  
+test : String
+test = show (== (True : []) (False : []))
+\end{lstlisting}
+\end{tabular}
+\caption{Programa original con {\em typeclasses}}
+\end{framed}
+\end{center}
+\label{programa_con_typeclasses}
+\end{figure}
+
+\begin{figure}[!htp]
+\begin{center}
+\begin{framed}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true,basicstyle=\footnotesize\tt]
+data class{EqShow} a where
+  mk{EqShow} : (a -> a -> Bool) -> (a -> String) -> class{EqShow} a
+
+== :  class{EqShow} a -> a -> a -> Bool
+== (mk{EqShow} m1 m2) = m1
+
+show :  class{EqShow} a -> a -> String
+show (mk{EqShow} m1 m2) = m2
+
+instance{EqShow}{Bool} : class{EqShow} Bool
+instance{EqShow}{Bool} =
+  let m1 True True = True in
+  let m2 True = "True" in
+    mk{EqShow} m1 m2
+
+instance{EqShow}{List} : class{EqShow} a -> class{EqShow} (List a) 
+instance{EqShow}{List} .instance{EqShow}{a} =
+  let m1 (Cons x xs) (Cons y ys) =
+     (== .instance{EqShow}{a}) x y &&
+     (== (instance{EqShow}{List} .instance{EqShow}{a})) xs ys in
+  let m2 (Cons x xs) =
+     (show .instance{EqShow}{a}) x ++
+     (show (instance{EqShow}{List} .instance{EqShow}{a})) xs in
+    mk{EqShow} m1 m2
+
+test : String
+test = let b = instance{EqShow}{Bool} in
+       let l = instance{EqShow}{List} instance{EqShow}{Bool} in
+         show b ((== l) (True : []) (False : []))
+\end{lstlisting}
+\end{tabular}
+\caption{Programa transformado sin {\em typeclasses}}
+\end{framed}
+\end{center}
+\label{programa_sin_typeclasses}
+\end{figure}
+
+
+\begin{itemize}
+\item
+  En la Figura~\ref{programa_con_typeclasses},
+  se define la clase \verb|EqShow| que tiene un
+  método \verb|==| para comparar dos valores por igualdad
+  y un método \verb|show| para convertir un valor a \verb|String|.
+  Además, se instancia la clase \verb|EqShow| para el tipo de datos
+  de los booleanos, y para el tipo de datos de las listas de \verb|a|
+  (siempre y cuando \verb|a| sea a su vez instancia de \verb|EqShow|).
+  Por último, se usa el método \verb|==| para comparar dos listas de
+  booleanos y el método \verb|==| para mostrar el booleano resultante.
+\item
+  En la Figura~\ref{programa_sin_typeclasses}
+  vemos la salida del inferidor de tipos, que convirtió el programa original
+  la Figura~\ref{programa_con_typeclasses}
+  en un programa equivalente que no utiliza {\em typeclasses}.
+  Vemos cómo la declaración de la clase \verb|(EqShow a)|
+  se convirtió en una declaración de un tipo de datos inductivo
+  \verb|(class{EqShow} a)| cuyo constructor recibe como parámetros las
+  implementaciones de los métodos \verb|==| y \verb|show|
+  (en algún orden fijo).
+
+  Las declaraciones de métodos \verb|==| y \verb|show| se convirtieron
+  en funciones que proyectan los dos campos de
+  un registro de tipo \verb|(class{EqShow} a)|.
+
+  La declaración de la instancia \verb|(EqShow Bool)|
+  se convirtió en una declaración de un valor
+  \verb|instance{EqShow}{Bool}| de tipo \verb|(class{EqShow} Bool)|,
+  que construye un registro con las implementaciones de los métodos
+  correspondientes para el tipo \verb|Bool|.
+
+  Análogamente, la declaración de la instancia \verb|(EqShow (List a))|
+  se convirtió en una declaración de un valor
+  \verb|instance{EqShow}{List}|.
+  Notar que, como la instancia de \verb|(EqShow (List a))|
+  depende a su vez que que el parámetro de tipos \verb|a| sea
+  instancia de \verb|EqShow|,
+  \verb|instance{EqShow}{List}| es una {\em función}
+  de tipo \verb|class{EqShow} a -> class{EqShow} (List a)|,
+  cuyo parámetro corresponde a la instancia de \verb|EqShow| para el tipo \verb|a|.
+
+  Por último, cuando se utilizan los métodos \verb|==| y \verb|show|
+  en casos concretos, el inferidor de tipos {\em resuelve} las restricciones
+  de clase. Así por ejemplo, cuando se comparan dos listas de booleanos por
+  igualdad, se usa la función \verb|==| pasándole como primer parámetro
+  un valor concreto de tipo \verb|EqShow (List Bool)|,
+  construido como:
+  \[
+  \verb|(instance{EqShow}{List} instance{EqShow}{Bool})|
+  \]
+\end{itemize}
+
+\subsection{Detalles de implementación}
+
+\subsubsection{Representación de tipos}
+
+El sistema de tipos representa internamente
+los tipos a secas, tipos restringidos y esquemas de tipos
+con los siguientes tipos de datos de Haskell:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+-- Tipos a secas:
+data Type = TVar QName                 -- variable de tipos
+          | TApp Type Type             -- aplicación
+          | TMetavar TypeMetavariable  -- metavariable de tipos
+
+-- Restricciones de clase:
+data TypeConstraint = TypeConstraint QName Type
+
+-- Tipos restringidos (acompañados de restricciones de clase):
+data ConstrainedType = ConstrainedType [TypeConstraint] Type
+
+-- Esquemas de tipos:
+data TypeScheme = TypeScheme [QName] ConstrainedType
+\end{lstlisting}
+\end{tabular}
+\end{center}
+
+Los identificadores de las metavariables son simplemente enteros,
+es decir, \verb|TypeMetavariable| es un renombre de \verb|Int|.
+Por ejemplo, el tipo
+  {\em a $\rightarrow$ ?42 $\rightarrow$  List (Tuple a Bool)}
+se representa con el siguiente valor de tipo \verb|Type|:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+TApp
+  (TApp (TVar (Name "_$\rightarrow$_")) (TVar (Name "a")))
+  (TApp 
+    (TApp (TVar (Name "_$\rightarrow$_")) (TMetavar 42))
+    (TApp
+      (TVar (Name "List"))
+      (TApp
+        (TApp (TVar (Name "Tuple")) (TVar (Name "a")))
+        (TVar (Name "Bool"))
+      )
+    )
+  )
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Observar que la variable de tipo ``\texttt{\_$\rightarrow$\_}''
+representa el constructor de tipos función (o ``tipo flecha'')
+y está aplicada a dos argumentos, que representan el dominio y el codominio
+respectivamente.
+Además, notar que \verb|a|, \verb|List|, \verb|Tuple| y \verb|Bool| también son variables de tipo.
+En cambio, \verb|?42| es una metavariable que se usa internamente para representar un
+tipo que aún no fue instanciado y cuyo identificador es el número \verb|42|.
+
+Como otro ejemplo, el esquema de tipos 
+${\small \texttt{a -> List b \ \ \{ Eq a ; Show b \}}}$,
+en el cual las variables \verb|a| y \verb|b| están cuantificadas
+universalmente,
+se representa con el siguiente valor de tipo \verb|TypeScheme|:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+TypeScheme [Name "a", Name "b"]
+  (ConstrainedType
+    [
+      TypeConstraint (Name "Eq") (Name "a"),
+      TypeConstraint (Name "Show") (Name "b")
+    ]
+    (TApp
+      (TApp (TVar (Name "_$\rightarrow$_")) (TVar (Name "a")))
+      (TApp (TVar (Name "List")) (TVar (Name "b")))
+    )
+  )
+\end{lstlisting}
+\end{tabular}
+\end{center}
+
+\subsubsection{Estado del inferidor de tipos}
+
+El inferidor de tipos se implementa a través
+de una mónada ``\verb|FailState|'' que propaga un estado
+y permite además fallar emitiendo un mensaje de error.
+El estado interno del inferidor de tipos es un registro
+conformado por los siguientes campos:
+\begin{itemize}
+  \item {\em Posición}:
+    se mantiene permanentemente registro de la ``posición actual'' dentro
+    del código fuente, destinada a reportar errores.
+    La posición se obtiene del nodo del AST que se está procesando.
+    Es decir, se cuenta con un campo:
+    \[ {\small \texttt{position :: Position}} \]
+    Un valor de tipo \verb|Position| tiene información sobre
+    el nombre del archivo y el número de fila y columna
+    en la que se encuentra la expresión que se está analizando.
+  \item {\em Próximo identificador disponible}:
+    el inferidor de tipos dispone de un contador que se incrementa cada
+    vez que se necesita generar un nombre interno.
+    Es decir, se cuenta con un campo que representa el próximo entero
+    disponible para generar un nombre temporal:
+    \[ {\small \texttt{nextFresh :: Integer}} \]
+    Por ejemplo, cuando se crea una variable de tipos fresca
+    se le da un nombre como \verb|"t{42}"|. 
+    Los nombres generados internamente incluyen llaves (\verb|"{"| y \verb|"}"|)
+    para asegurar que el nombre no pueda ser ingresado por el usuario.
+  \item {\em Tipos constantes}:
+    el inferidor de tipos cuenta con un conjunto de nombres de tipos {\em constantes}:
+    \[ {\small \texttt{typeConstants :: Set QName}} \]
+    Por ejemplo si se declara el tipo de datos \verb|data Tree|
+    el nombre \verb|"Tree"| se incluye en este conjunto.
+  \item {\em Sinónimos de tipos}:
+    en una pasada preliminar, el inferidor de tipos recolecta las declaraciones de
+    sinónimos de tipos en una tabla de sinónimos:
+    \[ {\small \texttt{typeSynonyms :: TypeSynonymTable}} \]
+    la tabla es un diccionario que a cada sinónimo de tipos \verb|T|
+    que haya sido declarado en una declaración
+    de la forma \verb|type T x1 ... xn = expr|
+    le asocia una tupla \verb|([x1, ..., xn], expr)|.
+  \item {\em Entorno}:
+    el entorno es una estructura que, a cada variable, le asocia un esquema de tipos. 
+    Como en general los {\em scopes} pueden estar anidados,
+    el entorno consta de una pila de ``costillas''\footnote{Tomamos la nomenclatura del inglés {\em rib}.}.
+    Cada {\em costilla} es un diccionario que asocia las variables
+    en el {\em scope} local a sus respectivos esquemas de tipo:
+    \[ {\small \texttt{environment :: [Map QName TypeScheme]}} \]
+  \item {\em Sustitución}:
+    la sustitución es una estructura que almacena información sobre cómo
+    se instancian las metavariables de tipo.
+    Más precisamente, es un diccionario que, a cada identificador de
+    metavariable de tipo, le asocia un tipo (a secas):
+    \[ {\small \texttt{substitution :: Map TypeMetavariable Type}} \]
+    A medida que el inferidor resuelve problemas de unificación,
+    determina el valor de algunas metavariables y refleja ese
+    conocimiento extendiendo la sustitución.
+  \item {\em Información sobre las clases y métodos}:
+    en una pasada preliminar, el inferidor de tipos recolecta información
+    sobre las declaraciones de clases, incluyendo el nombre del parámetro
+    de cada clase:
+    \[ {\small \texttt{classParameters :: Map QName QName}} \]
+    Para cada clase, se dispone de un diccionario que indica las
+    signaturas de cada uno de sus métodos:
+    \[ {\small \texttt{classMethodSignatures :: Map QName (Map QName Signature)}} \]
+    Además, por conveniencia, a cada método, se le asocia su {\em información},
+    que incluye el nombre de su clase y su signatura:
+    \[ {\small \texttt{methodInfo :: Map QName MethodInfo}} \]
+  \item {\em Instancias globales}:
+    el estado del inferidor de tipos cuenta con un diccionario de {\em instancias globales},
+    es decir, instancias de clase definidas en el programa por el usuario.
+    Más precisamente, es un diccionario:
+    \[ {\small \texttt{globalInstances :: Map (QName, QName) GlobalInstance}} \]
+    que le asocia un valor
+    a cada par de la forma $(C, cons)$ donde $C$ es el nombre de una clase y $cons$
+    es el nombre de un constructor de tipos que tiene declarada una instancia de la clase $C$.
+    A este par se le asocia la correspondiente información sobre los métodos de clase
+    definidos por la instancia de $C$ para el constructor $cons$.
+    Un valor de tipo \verb|GlobalInstance| representa una instancia
+    de una clase particular para algún constructor de tipos particular.
+
+  \item {\em Próximo {\em placeholder} disponible}:
+    el inferidor de tipos dispone de un contador que se incrementa cada
+    vez que se necesita generar un nuevo {\em placeholder}:
+    \[ {\small \texttt{freshPlaceholder :: Integer}} \]
+    Recordemos que los {\em placeholders} sirven para designar ``huecos''
+    en el código generado. Estos huecos representan instancias para
+    restricciones clases todavía no resueltas
+    y se completan en diferido a la hora de resolver las restricciones de clase.
+  \item {\em Entorno de restricciones de clase}:
+    el {\em entorno de restricciones de clase} es una estructura
+    que sirve para propagar las restricciones de clase que se tienen sobre
+    las metavariables (aún no instanciadas).
+    Más precisamente, es un diccionario:
+    \[ {\small \texttt{constraintEnv :: Map (QName, TypeMetavariable) PlaceholderId}} \]
+    que define un valor para cada par $(C, meta)$ donde $C$ es el nombre de una clase
+    y $meta$ es el identificador de una metavariable que aún no está instanciada y a la cual
+    se le impone esa restricción de clase.
+    El valor correspondiente es un identificador de un {\em placeholder}.
+    
+    Cada vez que se usa una función polimórfica con restricciones de clase,
+    las variables cuantificadas universalmente en su esquema de tipos
+    se instancian en metavariables frescas.
+    Observar que cada una de esas variables puede venir acompañada de
+    restricciones de clase. Para cada metavariable fresca $meta$
+    a la que corresponda una restricción de clase $C$,
+    se extiende el entorno de restricciones de clase,
+    asociando el par $(C, meta)$ a un nuevo placeholder.
+
+    Por otra parte, cada vez que una {\em metavariable} $meta$ se instancia
+    en un tipo concreto, se aplica un mecanismo
+    para resolver todas las restricciones de la forma $(C,meta)$
+    que se encuentren en el entorno de restricciones.
+    Dicho mecanismo falla si las restricciones no pueden ser
+    satisfechas utilizando las declaraciones de instancia disponibles.
+    Caso contrario, si el mecanismo tiene éxito, el {\em placeholder}
+    se instancia quedando ligado a un término
+    que representa la instancia correspondiente.
+
+    Observar que este mecanismo de resolución de restricciones
+    a su vez puede llegar a crear nuevas restricciones y {\em placeholders}.
+    Por ejemplo, supongamos que se cuenta con la declaración de instancia:
+    \[ {\small \texttt{Eq (List a) \ \ \{ Eq a \}}} \]
+    y supongamos además que se tiene la restricción \verb|(Eq, ?182)|
+    que está asociada al placeholder \verb|#56|.
+    Si, bajo estas condiciones, la metavariable \verb|?182|
+    se instancia en \verb|(List ?183)|,
+    se crea un nuevo placeholder, digamos \verb|#57|,
+    que queda asociado a la restricción \verb|(Eq, ?183)|.
+  \item {\em Memoria de {\em placeholders}}:
+    Los {\em placeholders} instanciados se asocian a expresiones
+    en un diccionario:
+    \[ {\small \texttt{placeholderHeap :: Map PlaceholderId Expr}} \]
+\end{itemize}
+
+\section{Expansión --- conversión al cálculo-$\lambdaunif$}
+
+En esta sección, se describe un mecanismo, llamado {\em expansión},
+que convierte programas del lenguaje \nuflo en términos del cálculo-$\lambdaunif$ equivalentes.
+Es decir, el término del cálculo-$\lambdaunif$ que se obtiene
+implementa el comportamiento esperado del programa fuente \nuflo.
+En la siguiente sección, se describirá cómo se interpretan los términos del
+cálculo-$\lambdaunif$.
+La composición de estos dos componentes nos da un intérprete para \nuflo.
+\bigskip
+
+La etapa de expansión requiere convertir un programa \nuflo, representado como un nodo del AST,
+en una expresión del cálculo-$\lambdaunif$.
+Siguiendo la definición formal de la sintaxis del cálculo-$\lambdaunif$,
+los programas se definen inductivamente:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+data Program = Fail
+             | Alt Term Program
+\end{lstlisting}
+\end{tabular}
+\end{center}
+es decir, un programa es la alternativa de una lista de términos.
+Un término del cálculo-$\lambdaunif$ se representa con el tipo \verb|Term|.
+Notar que los tipos \verb|Term| y \verb|Program| son mutuamente recursivos:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+data Term = Var QName                         -- variable
+          | Cons QName                        -- constructor
+          | ConstInt Integer                  -- constante entera
+          | ConstChar Char                    -- constante de caracter
+          | Fresh QName Term                  -- introducción de variable fresca
+          | Lam QName Program                 -- abstracción
+          | LamL Location QName Program       -- abstracción alojada
+          | Fix QName Term                    -- operador de punto fijo
+          | App Term Term                     -- aplicación
+          | Seq Term Term                     -- secuencia
+          | Unif Term Term                    -- unificación
+          | Function PrimitiveFunction [Term] -- función primitiva
+          | Command PrimitiveCommand [Term]   -- comando primitivo
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Estrictamente hablando, el lenguaje objeto no es el cálculo-$\lambdaunif$
+puro, sino el cálculo-$\lambdaunif$ extendido con:
+constantes enteras y de caracter,
+un operador de punto fijo explícito,
+además de funciones y comandos primitivos.
+\bigskip
+
+El proceso de conversión de un programa \nuflo a
+uno del cálculo-$\lambdaunif$ está implementado como una función
+en Haskell:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+desugar : ÑufloProgram $\rightarrow$ Term
+\end{lstlisting}
+\end{tabular}
+\end{center}
+El proceso de expansión es un recorrido recursivo
+relativamente sencillo sobre el programa fuente.
+A continuación se describen los aspectos clave de este proceso:
+
+\begin{enumerate}
+  \item {\bf Combinar múltiples ecuaciones en una única ecuación.} \\
+    En una pasada preliminar, antes de realizar la expansión propiamente dicha,
+    se transforman
+    todas las declaraciones de funciones que incluyen más de una ecuación
+    en una nueva declaración que consta de una única ecuación
+    que contiene a todas las anteriores.
+
+    Supongamos que se tiene una función \verb|f| con múltiples ecuaciones:
+    \[
+    \begin{array}{rcl}
+      \texttt{f args$_1$}  & = & \texttt{body$_1$}\\
+      \texttt{f args$_2$}  & = & \texttt{body$_2$}\\
+      & \vdots \\
+      \texttt{f args$_n$} & = & \texttt{body$_n$}\\
+    \end{array}
+    \]
+    
+    Donde \texttt{args$_i$} representa la lista de parámetros
+    y \texttt{body$_i$} representa el cuerpo
+    de la ecuación numero $i$ respectivamente.
+    
+    Como primer paso, se calcula el número máximo de argumentos que aparecen
+    en la definición de \verb|f|:
+    \[
+    \begin{array}{c}
+      \texttt{M}  = \texttt{max(length(args$_n$), $\hdots$, length(args$_n$))}\\
+    \end{array}
+    \]
+    Se produce la siguiente única ecuación para \texttt{f} utilizando la cantidad máxima de argumentos:
+    \[
+    \begin{array}{crr}
+      \texttt{f}  = \lambda x_1 \dots x_\texttt{M}
+      & \rightarrow & ((\lambda\,\texttt{args$_1$} \rightarrow \texttt{body$_1$})\, x_1 \dots x_\texttt{M}) \\
+      & \vert       & ((\lambda\,\texttt{args$_2$} \rightarrow \texttt{body$_2$})\, x_1 \dots x_\texttt{M}) \\
+      & \vdots      & \\
+      & \vert       & ((\lambda\,\texttt{args$_n$} \rightarrow \texttt{body$_n$})\, x_1 \dots x_\texttt{M}) \\
+    \end{array}
+    \]
+    Observar que el cuerpo de la abstracción más externa
+    es una alternativa de $n$ casos.
+    La $i$-ésima ecuación de la declaración original corresponde
+    a la $i$-ésima rama.
+    De esta manera, todas la funciones de un programa \nuflo se
+    pueden manipular de manera uniforme, asumiendo que están declaradas
+    a través de una sola ecuación.
+
+  \item {\bf Expansión de una abstracciones lambda cuyos parámetros son patrones.} \\
+    \nuflo permite escribir $\lambda$-abstracciones cuyo parámetro es un patrón:
+    $$
+    \begin{array}{c}
+        \text{$\lambda$\,\texttt{pattern} $\rightarrow$ \texttt{body}}\\
+    \end{array}
+    $$
+    
+    Donde \texttt{pattern} es un patron y \texttt{body} es la expresión correspondiente
+    al cuerpo de la abstracción.
+    Sin embargo, en el cálculo-$\lambdaunif$ las abstracciones reciben como
+    parámetro una variable. 
+    Una abstracción como la de arriba se expande de la siguiente manera:
+    \[
+    \begin{array}{c}
+      \text{$\lambda$ $x$ $\rightarrow$ \texttt{fresh} $y_1 \hdots y_n$ \texttt{in} (($x$ $\sim$ \texttt{pattern}) \texttt{\&} \texttt{body}) }\\
+    \end{array}
+    \]
+    Las variables $y_1,\hdots,y_n$ son las variables libres que aparecen en el
+    patrón, y que se encuentran ligadas en el cuerpo.
+    La abstracción instancia $y_1,\hdots,y_n$ en frescas,
+    unifica el argumento $x$ con el patrón $pattern$,
+    lo cual, posiblemente, instancia las variables $y_1,\hdots,y_n$.
+    En caso de que la unificación (\texttt{\_$\sim$\_}) tenga éxito,
+    se devuelve el cuerpo original de la función (\texttt{body}).
+  
+    Notar que las abstracciones con varios parámetros no deben considerarse
+    aparte, porque el proceso de análisis sintáctico ya las interpreta como
+    múltiples abstracciones anidadas.
+    Por ejemplo
+    \[
+      \lambda\,\texttt{pattern$_1$} \hdots \texttt{pattern$_n$} \rightarrow \texttt{body}
+    \]
+    se analiza sintácticamente igual que
+    \[
+      \lambda\,\texttt{pattern$_1$} \rightarrow \hdots\,\lambda\,\texttt{pattern$_n$} \rightarrow \texttt{body}
+    \]
+
+  \item {\bf Expansión de \texttt{let} no recursivo que define una variable.} \\
+     Una expresión \texttt{let} de la forma:
+     \[
+     \begin{array}{c}
+         \texttt{let x = expr in body} \\
+     \end{array}
+     \]
+     donde la variable $\texttt{x}$ no ocurre en $\texttt{expr}$,
+     se puede expandir a la siguiente expresión semánticamente equivalente,
+     expresada en términos de la aplicación y la abstracción:
+     \[
+     \begin{array}{c}
+         \texttt{($\lambda$\,x $\to$ body)\, expr}
+     \end{array}
+     \]
+  \item {\bf Expansión de \texttt{let} que define una función.} \\
+    Una expresión \texttt{let} de la forma:
+    \[
+    \begin{array}{c}
+        \texttt{let f p$_1$ $\dots$ p$_n$ = expr in body}\\
+    \end{array}
+    \]
+    y donde $\texttt{p$_1$}, \hdots, \texttt{p$_n$}$ representan patrones
+    contra los que se comparan los parámetros formales de la función \texttt{f},
+    se puede expandir a la siguiente definición:
+    \[
+    \begin{array}{c}
+        \texttt{let f = ($\lambda$ \texttt{p$_1$} $\dots$ \texttt{p$_n$} $\to$ expr) in body}\\
+    \end{array}
+    \]
+    Notar que si la variable $\texttt{f}$ no aparece libre en \texttt{expr},
+    obtenemos un \texttt{let} no recursivo que define una variable.
+    Así este caso se reduce inmediatamente al caso anterior
+    y a la expansión de una abstracción lambda cuyos parámetros son patrones.
+        
+  \item {\bf Expansión del let recursivo.} \\
+    En el caso más general de todos, una expresión $\texttt{let}$ tiene la siguiente forma:
+    \[
+    \begin{array}{rlll}
+        \texttt{let} & \texttt{f$_1$}\ \vec{\texttt{p}}_1 & = & \texttt{e$_1$} \\
+        & \vdots & \\
+                     & \texttt{f$_n$}\ \vec{\texttt{p}}_n & = & \texttt{e$_n$} \\
+         \texttt{in} & \texttt{body}  &\\
+    \end{array}
+    \]
+    donde cada nombre de función $\texttt{f}_i$ puede tener varias ecuaciones
+    asociadas que la definen. En esta declaración, $\vec{\texttt{p}}_i$ es una lista de patrones
+    contra los cuales se comparan los parámetros formales de la función
+    $\texttt{f}_i$. Además, notar que, en general,
+    la variable $\texttt{f}_i$ puede ocurrir libre en la expresión $\texttt{e}_j$
+    para todo par $1 \leq i,j \leq n$.
+
+    El primer paso de expansión es aplicar la transformación descripta más
+    arriba para combinar múltiples ecuaciones en una única ecuación.
+    Como resultado, podemos asumir que no hay nombres de funciones repetidas, es decir,
+    $\texttt{f}_i \neq \texttt{f}_j$ si $i \neq j$.
+
+    El segundo paso es aplicar para cada $1 \leq i \leq n$
+    la expansión de \texttt{let} que define una función,
+    para convertirlo en un \texttt{let} que define una variable.
+    Como resultado, podemos asumir que la expresión tiene la siguiente
+    forma:
+    \[
+    \begin{array}{rlll}
+        \texttt{let} & \texttt{f$_1$} & = & \texttt{e$_1$} \\
+        & \vdots & \\
+                     & \texttt{f$_n$} & = & \texttt{e$_n$} \\
+         \texttt{in} & \texttt{body}  &\\
+    \end{array}
+    \]
+    La forma de convertir esta expresión a un término del cálculo-$\lambdaunif$
+    es ``aplanando'' la recursión mutua, construyendo una expresión \texttt{let}
+    que define una única variable que está ligada a una tupla de $n$ componentes
+    cuya $i$-ésima componente corresponde al valor de la expresión $\texttt{e}_i$.
+    Eso se define como:
+    $$
+    \begin{array}{rll}
+       \texttt{let}  & \texttt{t} = (\texttt{fix}\ \texttt{t} \to \langle \texttt{e}_1^*, \hdots, \texttt{e}_n^* \rangle)\\
+         \texttt{in} & \texttt{body}^* &\\
+    \end{array}
+    $$
+    donde $\texttt{fix}$ es un operador de punto fijo\footnote{El
+    operador de punto fijo se podría definir igual que en el cálculo-$\lambda$,
+    por ejemplo como $\texttt{fix} = \lambda{f}.(\lambda{x}.f\,(x\,x))\,(\lambda{x}.f\,(x\,x))$.
+    Por cuestiones de eficiencia, en nuestra implementación
+    del cálculo-$\lambdaunif$, se dispone de un operador de punto fijo primitivo.}
+    y $\texttt{x}^*$ es la expresión que se obtiene a partir de \texttt{x}
+    ligando cada $\texttt{f}_i$ a la $i$-ésima componente de la tupla:
+    \[
+    \begin{array}{lrlll}
+       \texttt{x}^* = 
+       &  \texttt{let} & \texttt{f$_1$} & = & \texttt{$\pi_1$(t)} \\
+       &  & \vdots & \\
+       &               & \texttt{f$_n$} & = & \texttt{$\pi_n$(t)} \\
+       &   \texttt{in} & \texttt{x}  &\\
+    \end{array}
+    \]
+    Notar que la operación para crear una tupla de $n$ componentes $\langle x_1, \hdots, x_n \rangle$
+    y la proyección de su $i$-ésima componente $\pi^n_i(x)$ se pueden definir
+    en el cálculo-$\lambdaunif$ de la siguiente manera, donde {\bf tuple} es un constructor:
+    \[
+       \begin{array}{rcl}
+         \langle x_1, \hdots, x_n \rangle & = & {\bf tuple}\,x_1\,\hdots\,x_n
+       \\
+         \pi^n_i(x) & = & \texttt{fresh}\ x_1\,\hdots\,x_n \,\texttt{in}\, (x \sim {\bf tuple}\,x_1\,\hdots\,x_n) \,\texttt{\&}\, x_i \\
+       \end{array}
+    \]
+  \item {\bf Expansión de la alternativa por casos.} \\
+    Supongamos
+    que se tiene una alternativa por casos de la forma:  
+    $$
+    \begin{array}{cl}
+      \texttt{case}\ \texttt{e}\ \texttt{of}
+      & \texttt{p}_1 \rightarrow \texttt{b$_1$}\\
+      & \vdots\\
+      & \texttt{p}_n \rightarrow \texttt{b$_n$}\\
+    \end{array}
+    $$
+    donde $\texttt{e}$ es la expresión a evaluar,
+    $\texttt{p}_i$ es el patrón de la $i$-ésima rama de la alternativa
+    y $\texttt{b}_i$ el cuerpo de dicha rama.
+    
+    La expresión de arriba se puede expandir a la aplicación:
+    \[
+      \texttt{f e}
+    \]
+    donde \texttt{f} es la función definida como sigue:
+    $$
+    \begin{array}{llcrl}
+      \texttt{f}
+      & = & \lambda \texttt{x}
+            & \rightarrow & \texttt{fresh}\ \vec{\texttt{y}}_1\ \texttt{in}\ ((\texttt{x} \sim \texttt{p}_1)\ \texttt{\&}\ \texttt{b}_1) \\
+      &   & & \vert       & \texttt{fresh}\ \vec{\texttt{y}}_2\ \texttt{in}\ ((\texttt{x} \sim \texttt{p}_2)\ \texttt{\&}\ \texttt{b}_2) \\
+      &   & & \vdots \\
+      &   & & \vert       & \texttt{fresh}\ \vec{\texttt{y}}_n\ \texttt{in}\ ((\texttt{x} \sim \texttt{p}_n)\ \texttt{\&}\ \texttt{b}_n) \\
+    \end{array}
+    $$
+    La lista $\vec{\texttt{y}}_i$ incluye todas las variables libres del patrón $\texttt{p}_i$.
+    Esta función simula cada una de las ramas del \texttt{case}
+    a través de $n$ aplicaciones del operador de alternativa no determinística.
+    Observar que las ramas no son mutuamente excluyentes.
+\end{enumerate}
+
+\section{Interpretación del cálculo-$\lambdaunif$}
+\label{sec:interpretacion_del_calculo_lambdaU}
+
+Para la evaluación de los programas en \nuflo, en este trabajo se optó por un proceso de
+interpretación (definido de manera ingenua) en vez de por un proceso de compilación.
+Se tomó esta decisión porque contamos con una semántica operacional para el cálculo-$\lambdaunif$
+que ya sabemos que es correcta (en el sentido de que es confluente).
+Implementar correctamente un compilador excede el alcance de este
+trabajo, porque para darle bases teóricas sólidas sería necesario definir una
+{\em máquina abstracta} para el cálculo-$\lambdaunif$.
+
+El primer paso para evaluar un programa \nuflo es expandir
+el programa a un término del cálculo-$\lambdaunif$ como se describió en
+la sección anterior.
+
+A continuación, un término del cálculo-$\lambdaunif$ se evalúa de acuerdo con
+las reglas de semántica operacional del cálculo-$\lambdaunif$.
+En \nuflo, al igual que en otros lenguajes lógicos con alternativa no determinística
+como Prolog, un programa puede tener muchos posibles resultados.
+En Prolog, la exploración del árbol de búsqueda sigue un recorrido {\em depth-first} (DFS).
+En la implementación de \nuflo, en cambio, y al igual que en el caso de miniKanren,
+el árbol se recorre en orden {\em breadth-first} (BFS).
+Más precisamente, se sigue la estrategia de reducción Gross--Knuth~\cite[Def.~4.9.5]{Terese},
+que consiste en tomar un programa y reducir al mismo tiempo
+todas las expresiones reducibles ({\em redexes}) que se encuentren presentes
+en él.
+Esto corresponde a aplicar la noción de reducción simultánea ($\Rightarrow$)
+definida en \rdef{reduccion_simultanea}, eligiendo la segunda variante de una regla
+siempre que sea posible. Por ejemplo, se elige la regla \texttt{App$_2$}
+en lugar de la regla \texttt{App$_1$} siempre que esto sea posible.
+
+Luego de realizar un paso de reducción simultánea para un programa,
+este resulta en un conjunto de {\em threads}. En este conjunto,
+puede haber {\em threads} que estén en {\em forma normal} y {\em threads}
+que no.
+Es decir, el programa $P$ se puede escribir como
+$P \structeq (\alt_{i=1}^n t_i) \alt (\alt_{j=1}^m s_j)$
+donde los términos $t_i$ se encuentran en forma normal
+y los términos $s_j$ no se encuentran en forma normal.
+Los {\em threads} en forma normal son valores de tipo \texttt{IO} que
+serán ``mostrados en pantalla'', o más precisamente sometidos a un proceso
+de {\em interacción}.
+Los {\em threads} que no estén en forma normal
+se volverán a someter al proceso de evaluación, que proseguirá indefinidamente
+hasta que el programa conste únicamente de {\em threads} en forma normal.
+Notar que cuando se ejecuta un paso de reducción simultánea,
+la cantidad de {\em threads} puede disminuir, aumentar o permanecer invariable.
+\medskip
+
+Por ejemplo, si se tiene el siguiente término, donde suponemos que
+\texttt{c}, \texttt{d} y \texttt{e} son constructores:
+\begin{lstlisting}[]
+(\ x -> ((x ~ c) & c) | fresh y in ((x ~ d y) & y))
+    ((\ x -> x) (d e))
+\end{lstlisting}
+El término se evalúa de la siguiente manera:
+\begin{enumerate}
+\item
+En primer lugar, se alojan las dos abstracciones, con dos pasos simultáneos de \texttt{alloc}:
+\begin{lstlisting}[mathescape=true]
+(\L1 x -> ((x ~ c) & c) | fresh y in ((x ~ d y) & y))
+    ((\L2 x -> x) (d e))
+\end{lstlisting}
+\item
+Se ejecuta un paso de \texttt{beta} en el argumento.
+La aplicación de más afuera no es reducible porque su argumento no es
+un valor:
+\begin{lstlisting}[mathescape=true]
+(\L1 x -> ((x ~ c) & c) | fresh y in ((x ~ d y) & y)) (d e)
+\end{lstlisting}
+\item
+Ahora se ejecuta el paso \texttt{beta} de la aplicación más externa.
+Notar que esto aumenta el número de {\em threads}, de $1$ a $2$:
+\begin{lstlisting}[mathescape=true]
+((d e ~ c) & c) | fresh y in ((d e ~ d y) & y)
+\end{lstlisting}
+\item
+En el {\em thread} de la izquierda hay una unificación que falla,
+por lo tanto se aplica un paso de la regla \texttt{fail}.
+En el {\em thread} de la derecha, se introduce la variable fresca \texttt{y}
+con un paso de la regla \texttt{fresh}.
+Notar que esto reduce el número de {\em threads}, de $2$ a $1$:
+\begin{lstlisting}[mathescape=true]
+(d e ~ d y) & y
+\end{lstlisting}
+\item
+La unificación \verb|d e ~ d y| tiene éxito, con un paso de la regla
+\texttt{unif}:
+\begin{lstlisting}[mathescape=true]
+ok & e
+\end{lstlisting}
+\item
+Por último, el término de la izquierda de la secuencia (\texttt{ok})
+ya es un valor, por lo tanto con un paso de la regla \texttt{seq}
+se obtiene:
+\begin{lstlisting}[mathescape=true]
+e
+\end{lstlisting}
+\end{enumerate}
+
+\noindent{\bf Interacción con el entorno: ejecución de las formas normales.}
+Como se mencionó antes, cuando un {\em thread} llega a encontrarse en forma normal,
+se lo somete a un proceso de ``ejecución'' o interacción.
+El programa principal en \nuflo debe ser la función \texttt{main : () $\to$ IO}.
+El punto de entrada del intérprete de \nuflo es la evaluación de la expresión \texttt{main ()}.
+Las formas normales de tipo \texttt{IO} se pueden entender como comandos o acciones
+que describen una interacción con el entorno.
+Cuando se ejecuta una forma normal de tipo \texttt{IO}, el resultado es un efecto de entrada/salida.
+No hay garantía sobre el orden en el que estas formas normales se ejecutan.
+Se garantiza que el intérprete de \nuflo ejecuta todos los términos en
+forma normal que se puedan alcanzar a partir de la expresión \texttt{main ()}, en algún orden\footnote{El resultado
+de confluencia asegura que el multiconjunto de formas normales es único sin importar el orden en
+el que se evalúe el programa, pero la unicidad se debe entender módulo la relación
+de equivalencia estructural, que permite conmutar {\em threads}.}.
+
+Como primitiva del lenguaje \nuflo, se define el tipo de datos
+que sirve para representar interacciones con el entorno (\texttt{IO})
+de la siguiente manera:
+
+$$
+\begin{array}{l@{\hspace{-2.75cm}}llll}
+  \texttt{data IO where} \\
+                     &        & \texttt{end}     & : & \texttt{IO} \\
+                     &        & \texttt{print}   & : & \texttt{a $\rightarrow$ IO $\rightarrow$ IO} \\
+                     &        & \texttt{put}     & : & \texttt{String $\rightarrow$ IO $\rightarrow$ IO} \\
+                     &        & \texttt{get}     & : & \texttt{(String $\rightarrow$ IO) $\rightarrow$ IO} \\
+                     &        & \texttt{getChar} & : & \texttt{(Char $\rightarrow$ IO) $\rightarrow$ IO} \\
+                     &        & \texttt{getLine} & : & \texttt{(String $\rightarrow$ IO) $\rightarrow$ IO} \\
+\end{array}
+$$
+El tipo \texttt{IO} puede verse como un conjunto de operaciones que realizan
+algún tipo de interacción con el entorno.
+A continuación se explica brevemente el comportamiento de cada constructor:
+
+\begin{itemize}
+  \item \texttt{end}:
+    operación nula, es decir, la operación que no tiene efecto.
+  \item \texttt{(print $x$ $io$)}:
+    operación que escribe en la salida estándar el valor de $x$,
+    en un formato apropiado.
+    A continuación prosigue con la ejecución del comando $io$.
+  \item \texttt{(put $x$ $io$)}:
+    operación que escribe en la salida estándar el {\em string} $x$.
+    A continuación prosigue con la ejecución del comando $io$.
+  \item \texttt{(get $f$)}:
+    operación que lee el contenido de la entrada estándar completo
+    hasta que se alcanza el final del archivo (es decir, hasta que se alcanza
+    la condición de \texttt{end-of-file}) en un {\em string} $x$.
+    A continuación prosigue con la evaluación y ejecución del comando $(f x)$.
+  \item \texttt{(getChar $f$)}:
+    operación que lee un caracter $x$ de la entrada estándar.
+    A continuación prosigue con la evaluación y ejecución del comando $(f x)$.
+  \item \texttt{(getLine $f$)}:
+    operación que lee una línea de la entrada estándar
+    (es decir, hasta que se alcanza el final de línea, cuya representación
+    exacta puede depender del entorno) en un {\em string} $x$.
+    A continuación prosigue con la evaluación y ejecución del comando $(f x)$.
+\end{itemize}
+
+Por ejemplo, la siguiente expresión representa una interacción con el entorno
+en la que se solicita al usuario que ingrese un {\em string},
+se lee una línea de la entrada
+y se imprime en pantalla el reverso del {\em string} leído:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+put $``$Ingrese un string:$"$
+    (getLine (\ s $\rightarrow$ put (reverse s) end))
+\end{lstlisting}
+\end{tabular}
+\end{center}
+
+\section{Tipos y operaciones primitivas}
+
+En esta sección se describen los tipos y operaciones primitivas de \nuflo.
+Todos los tipos y operaciones primitivas de \nuflo están declarados en
+el módulo \texttt{PRIM} cuyos nombres siempre están disponibles para el
+usuario, sin necesidad de importarlos explícitamente.
+
+\subsection{Tipos de datos}
+Los tipos de datos primitivos de \nuflo son:
+
+\begin{enumerate}
+  \item \texttt{\_$\rightarrow$\_}: constructor de tipos para las relaciones/funciones.
+  \item \texttt{Int}: tipo de los enteros. \\ Sus constructores se escriben \texttt{0, 1, 2, $\hdots$}
+  \item \texttt{Char}: tipo de los caracteres. \\
+        Sus constructores se escriben \texttt{'0', '1', $\hdots$, 'A', 'B', $\hdots$}
+  \item \texttt{List}: tipo de las listas. Su definición es equivalente a esta:
+  $$
+  \begin{array}{l@{\hspace{-3cm}}llll}
+    \texttt{data List a where} \\
+                       &        & \texttt{[]}    & : & \texttt{List a} \\
+                       &        & \texttt{\_:\_} & : & \texttt{a $\rightarrow$ List a $\rightarrow$ List a} \\
+  \end{array}
+  $$
+  \item \texttt{String}: tipo de los {\em strings}, renombre de \texttt{List Char}.
+  \item \texttt{()}: tipo unitario, que tiene un único constructor también notado \texttt{()}.
+  \item \texttt{IO}: tipo para representar las interacciones con el entorno, definido como
+        ya se detalló arriba:
+    $$
+    \begin{array}{l@{\hspace{-2.75cm}}llll}
+      \texttt{data IO where} \\
+                         &        & \texttt{end}     & : & \texttt{IO} \\
+                         &        & \texttt{print}   & : & \texttt{a $\rightarrow$ IO $\rightarrow$ IO} \\
+                         &        & \texttt{put}     & : & \texttt{String $\rightarrow$ IO $\rightarrow$ IO} \\
+                         &        & \texttt{get}     & : & \texttt{(String $\rightarrow$ IO) $\rightarrow$ IO} \\
+                         &        & \texttt{getChar} & : & \texttt{(Char $\rightarrow$ IO) $\rightarrow$ IO} \\
+                         &        & \texttt{getLine} & : & \texttt{(String $\rightarrow$ IO) $\rightarrow$ IO} \\
+    \end{array}
+    $$
+\end{enumerate}
+
+\subsection{Identificadores reservados}
+
+Los siguientes identificadores tienen una interpretación especial:
+\begin{enumerate}
+  \item El símbolo ``\texttt{\_}'' ({\em underscore}) representa un
+        término fresco. Esto se puede usar para expresar un patrón comodín
+        igual que en Haskell o Prolog, pero también puede aparecer
+        en el lado {\em derecho} de una definición.
+        Su significado es equivalente al de \texttt{(fresh x in x)}
+        y tiene tipo arbitrario, es decir $\texttt{\_} : \texttt{a}$
+        para todo \texttt{a}.
+  \item El identificador \texttt{main} está reservado para la función principal,
+        debe definirse una sola vez en todo el programa
+        y debe tener tipo \texttt{main : () $\rightarrow$ IO}.
+\end{enumerate}
+
+\subsection{Operaciones primitivas}
+
+\begin{itemize}
+  \item {\bf Falla.}
+        Se nota con un término \texttt{fail : a}.
+        La expresión $\texttt{fail}$ es equivalente a la expresión \texttt{(case \_ of \{\})}.
+  \item {\bf Alternativa.}
+        Se nota con el operador binario \texttt{\_|\_ : a $\to$ a $\to$ a}.
+        La expresión $\texttt{(x | y)}$
+        es equivalente a \texttt{(case \_ of \{ \_ $\to$ x ; \_ $\to$ y \})}.
+  \item {\bf Secuencia.}
+        Se nota con el operador binario \texttt{\_\&\_ : a $\to$ b $\to$ b}.
+  \item {\bf Unificación.}
+        Se nota con el operador binario \texttt{\_$\sim$\_ : a $\to$ a $\to$ ()}.
+\end{itemize}
+
+\subsection{Tabla de asociatividad y precedencia}
+
+Los siguientes son los operadores primitivos que reconoce el analizador
+sintáctico de \nuflo, con sus respectivas asociatividades y niveles de
+precedencia.
+\medskip
+
+\begin{tabular}{l|l|l|l}
+{\bf Operador} & {\bf Descripción} & {\bf Asociatividad} & {\bf Nivel de precedencia} \\
+\hline
+  \texttt{\_$\to$\_}
+  &
+  Tipo funcional
+  &
+  a derecha
+  &
+  50
+\\
+  \texttt{\_$\mid$\_}
+  &
+  Alternativa
+  &
+  a derecha
+  &
+  60
+\\
+  \texttt{\_$;$\_}
+  &
+  Secuencia
+  &
+  a derecha
+  &
+  70
+\\
+  \texttt{\_$\sim$\_}
+  &
+  Unificación
+  &
+  a derecha
+  &
+  80
+\\
+  \texttt{\_$:$\_}
+  &
+  Constructor de listas
+  &
+  a derecha
+  &
+  90
+\end{tabular}
+
+\section{Ejemplos de programas \nuflo}
+
+El objetivo de esta sección es mostrar algunos ejemplos de programas en \nuflo.
+Para comenzar, se modelan los números naturales y la operación de adición
+por inducción en la estructura de los números:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+data Nat where
+  Z  : Nat
+  S  : Nat -> Nat
+
+_+_ : Nat -> Nat -> Nat
+Z   + n = n
+S n + m = S (n + m)
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Los números naturales se representan en este ejemplo con la codificación de Peano.
+Por ejemplo, el $3$ se representa con el valor \verb|S (S (S Z))|.
+El operador infijo $\_$+$\_$ define una relación funcional que recibe dos números
+naturales y retorna la suma de ellos. Se define haciendo {\em pattern matching} sobre la
+estructura de los números a sumar.
+Desde el punto de vista práctico, este programa está incompleto,
+porque no cuenta con un punto de entrada (función \verb|main|).
+Recordar que la función \verb|main| debe ser de tipo \texttt{() $\to$ IO}.
+La función {\em main} podría ser, por ejemplo:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+main () = print (
+            fresh x in
+              (S (S Z) + x) ~ S (S (S Z))
+              & x
+          ) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Observar que ahora el comportamiento de este programa es el siguiente:
+se instancia una variable simbólica fresca \verb|x|,
+se evalúan las expresiones \verb|(S (S Z) + x)| y \verb|(S (S (S Z)))|,
+y se unifican sus resultados.
+Si la unificación tiene éxito, se retorna el valor en el que haya sido
+instanciada la variable \verb|x|.
+En este caso, la unificación tiene éxito y la variable \verb|x| se instancia
+en el valor \verb|S Z|, que representa el número $1$.
+El comando \verb|print| escribe dicho resultado en la salida estándar.
+
+Siguiendo las mismas ideas,
+es posible definir la relación que representa la sustracción ($\_-$\_) de la siguiente manera:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+_-_ : Nat -> Nat -> Nat
+x - y = fresh z in
+              (y + z) ~ x
+              & z
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Notar que, a diferencia de la suma, la resta no se define usando {\em pattern matching}
+sino a través del operador de unificación, devolviendo una variable \verb|z|
+tal que \verb|y + z| unifique con $x$.
+No es necesario definir esta función por casos ya que al utilizar la
+operación de adición, se cubren todos los posibles casos. Por lo tanto, evaluar:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+main () = print (S (S (S Z)) - S Z) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+se obtiene como resultado \verb|S (S Z)|, la representación del numero $2$.
+\bigskip
+
+Por otro lado, haciendo uso de la alternativa no deterministica,
+podríamos definir la función \verb|coin| que no determinísticamente
+devuelve $1$ ó $2$:\\
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+coin : () -> Nat
+coin () = S Z | S (S Z)
+
+main () = print (coin () + coin ()) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+En este caso, el programa escribe en la salida
+{\em todas} las posibles sumas de los resultados de \verb|coin|.
+Esto es:
+\[
+\begin{array}{r@{\HS}l}
+\verb|S (S Z)|         & (1 + 1) \\
+\verb|S (S (S Z))|     & (1 + 2) \\
+\verb|S (S (S Z))|     & (2 + 1) \\
+\verb|S (S (S (S Z)))| & (2 + 2) \\
+\end{array}
+\]
+Notar que se incluyen resultados repetidos en la salida.
+Tener en cuenta también que no hay ninguna garantía sobre el orden
+en el que se escriben estos resultados en la salida.
+\medskip
+
+Como ejemplo ilustrativo, veremos cómo implementar algunas operaciones sobre listas.
+Recordar que las listas son un tipo de dato primitivo en \nuflo, por lo que no es necesario
+definirlo previamente (con constructores \verb|[]| y $\_:\_$).
+Se implementa la función {\em append} ($\_\verb|++|\_$)
+recursivamente haciendo {\em pattern matching} sobre la estructura de las listas:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+_++_ : List a -> List a -> List a
+[]       ++ ys = ys
+(x : xs) ++ ys = x : (xs ++ ys)
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Una vez definida la operación para concatenar dos listas,
+podemos definir la relación {\em prefijo},
+que relaciona una lista con todos sus prefijos,
+de manera sumamente declarativa:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+prefijo : List a -> List a
+prefijo (xs ++ ys) = xs
+
+main () = print (prefijo (1 : 2 : 3 : [])) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Al evaluar este programa se obtienen como resultado todos los posibles prefijos de
+la lista \verb|(1 : 2 : 3 : [])|:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+[]
+1 : []
+1 : 2 : []
+1 : 2 : 3 : []
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Observar que la relación \verb|prefijo| está definida,
+aparentemente, haciendo {\em pattern matching}
+sobre un argumento que resulta
+de aplicar la función (\texttt{\_$++$\_}) definida previamente.
+A diferencia de Haskell, donde los patrones están limitados a
+estar formados por aplicaciones de constructores,
+en \nuflo un patrón puede ser una expresión arbitraria.
+Recordar que la definición de \texttt{prefijo} de arriba es equivalente
+a la siguiente, como se describió en la sección que describe
+la etapa de expansión:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+prefijo : List a -> List a
+prefijo lista = fresh xs ys in (lista ~ (xs ++ ys)) & xs
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Utilizando esta misma técnica (con patrones funcionales), es posible definir
+la función \verb|last|, que devuelve el último elemento de una lista no vacía,
+de manera declarativa, como sigue:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+last : List a -> a
+last (_ ++ (x : [])) = x
+
+main () = print (last (1 : 2 : 3 : [])) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Como es de esperar, el resultado de este es el número 3,
+qué es el único valor para el cual la unificación tiene éxito.
+
+Haciendo uso de la exploración exhaustiva implícita que surge al evaluar la
+alternativa no determinística dada por una relación definida por medio de
+varias ecuaciones, se puede definir la relación \verb|inter|,
+que dado un elemento \verb|x| y una lista \verb|l|,
+genera todas las posibles listas que resultan de intercalar \verb|x|
+en algún lugar de \verb|l|:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+inter : a -> List a -> List a
+inter x []       = x : []
+inter x (y : ys) = x : (y : ys)
+inter x (y : ys) = y : inter x ys
+
+main () = print (inter 42 (1 : 2 : 3 : [])) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Este programa tiene cuatro resultados:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+42 : 1 : 2 : 3 : []
+1 : 42 : 2 : 3 : []
+1 : 2 : 42 : 3 : []
+1 : 2 : 3 : 42 : []
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Usando la relación \verb|inter|
+y la función \verb|foldr| usual,
+es posible definir una nueva relación \verb|perm|
+que genera todas las posibles permutaciones de una lista:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+foldr : (a -> b -> b) -> b -> List a -> b
+foldr _ z []       = z
+foldr f z (x : xs) = f x (foldr f z xs)
+
+perm : List a -> List a
+perm xs = foldr inter [] xs
+
+main () = print (perm (1 : 2 : 3 : [])) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Esto da como resultado:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+1 : 2 : 3 : []
+1 : 3 : 2 : []
+2 : 1 : 3 : []
+2 : 3 : 1 : []
+3 : 1 : 2 : []
+3 : 2 : 1 : []
+\end{lstlisting}
+\end{tabular}
+\end{center}
+es decir, todas las posibles permutaciones de la lista \verb|(1 : 2 : 3 : [])|.
+\bigskip
+
+El uso de herramientas como
+la búsqueda exhaustiva y la unificación permiten entender 
+un programa como un conjunto de definiciones de datos y relaciones entre ellos.
+Como se mencionó antes, los patrones en \nuflo pueden ser expresiones arbitrarias.
+Usando esta técnica, es posible definir una relación de orden superior
+\verb|inv|, que dada una relación binaria devuelve la relación inversa.
+Desde el punto de vista denotacional,
+\verb|inv| relaciona a cada relación binaria $R$
+con la relación $R^{-1} = \set{(b,a) \ST (a,b) \in R}$:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+inv : (a -> b) -> b -> a
+inv f (f x) = x
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Notar que la segunda ocurrencia de \verb|f| en el lado izquierdo de la ecuación
+está ligada por la primera ocurrencia de \verb|f|.
+De hecho, la definición de arriba se convierte en la siguiente definición
+durante la etapa de expansión:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+inv : (a -> b) -> b -> a
+inv = \ f -> \ y -> fresh x in (y ~ (f x)) & x
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Por ejemplo, consideremos el tipo de datos \verb|Simpson|
+y la función \verb|padre|:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+data Simpson where
+  Abe    : Simpson
+  Homero : Simpson
+  Bart   : Simpson
+  Lisa   : Simpson
+  Maggie : Simpson
+
+padre : Simpson -> Simpson
+padre Homero = Abe
+padre Bart   = Homero
+padre Lisa   = Homero
+padre Maggie = Homero
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Notemos de paso que la función \verb|padre| también se podría definir
+usando el operador de alternativa no deterministica en el patrón:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+padre : Simpson -> Simpson
+padre Homero                 = Abe
+padre (Bart | Lisa | Maggie) = Homero
+\end{lstlisting}
+\end{tabular}
+\end{center}
+A continuación, se podría definir la relación \verb|hijo| como sigue:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+hijo (padre x) = x
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Este es precisamente el patrón que abstrae la relación de orden superior \verb|inv|.
+En efecto, aplicando la relación \verb|inv| sobre la relación \verb|padre|
+se podría definir la relación \verb|hijo| directamente como:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+hijo = inv padre
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Por ejemplo, el programa que tiene como resultado a todos los nietos
+de \verb|Abe| se podría definir de la siguiente manera:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+abuelo  = padre $\circ$ padre
+nieto   = inv abuelo
+main () = print (nieto Abe) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+donde $\_\circ\_$ representa la composición de relaciones,
+definida de la manera usual como \texttt{\_$\circ$\_ f g x = f (g x)}.
+Esto da como resultado:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+Bart
+Lisa
+Maggie
+\end{lstlisting}
+\end{tabular}
+\end{center}
+\bigskip
+
+Como último ejemplo, se implementa un inferidor de tipos minimal
+para el cálculo-$\lambda$ simplemente tipado.
+Los términos se representan con la codificación basada en índices de de Bruijn,
+es decir, las variables no se representan con nombres, sino con un número
+natural que indica el índice de la abstracción que la liga.
+Por ejemplo, el término $\lam{\var}{(\lam{\vartwo}{(\vartwo\,\var)})\,\var}$
+se codifica como $\lambda((\lambda\,0\,1)\,0)$.
+Para esto, se definen los siguientes tipos de datos:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+data Id where
+  Z : Id
+  S : Id -> Id
+
+data Type where
+  BOOL : Type
+  _=>_ : Type -> Type -> Type
+
+data Ctx where
+   $\emptyset$  : Ctx
+  _,_ : Ctx -> Type -> Ctx
+
+data Term where
+  var : Id -> Term
+  lam : Term -> Term
+  app : Term -> Term -> Term
+\end{lstlisting}
+\end{tabular}
+\end{center}
+El tipo de datos \verb|Id| representa los índices de de Bruijn.
+El tipo de datos \verb|Type| representa
+los tipos del cálculo-$\lambda$ simplemente tipado con un único tipo básico (\verb|BOOL|).
+El tipo de datos \verb|Ctx| sirve para representar los contextos de tipado.
+Un contexto de tipado $\tctx$ puede ser vacío o, recursivamente, de la forma $\tctx,\typ$
+donde $\typ$ es un tipo.
+El tipo de datos \verb|Term| representa los términos del cálculo-$\lambda$
+simplemente tipado.
+\bigskip
+
+A continuación se define una relación \texttt{\_$\backepsilon$\_$::$\_}
+de la siguiente manera:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+_$\backepsilon$_::_ : Ctx -> Id -> Type -> ()
+($\Gamma$ , A) $\backepsilon$ Z   :: A = ()
+($\Gamma$ , A) $\backepsilon$ S x :: B = $\Gamma$ $\backepsilon$ x :: B
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Esta relación está definida de tal modo que valga la siguiente igualdad:
+\[
+  (\varnothing,\typ_{n-1},\typ_{n-2},\hdots,\typ_1,\typ_0) \backepsilon i :: \typ_i = ()
+\]
+\bigskip
+
+Usando esta definición, se puede definir otra relación
+\texttt{\_$\vdash$\_$::$\_}
+que corresponde a la relación de tipabilidad:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+_$\vdash$_::_ : Ctx -> Term -> Type -> ()
+$\Gamma$ $\vdash$ var x   :: A = $\Gamma$ $\backepsilon$ x :: A
+$\Gamma$ $\vdash$ lam t   :: (A => B) = ($\Gamma$ , A) $\vdash$ t :: B
+$\Gamma$ $\vdash$ app t s :: B = fresh A in
+                          $\Gamma$ $\vdash$ t :: (A => B)
+                        & $\Gamma$ $\vdash$ s :: A
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Observar que a una variable \verb|x| se le puede asignar el tipo \verb|A|
+si y sólo si el índice \verb|x| del contexto $\Gamma$ es el tipo \verb|A|.
+Una abstracción \verb|lam t|
+tiene tipo \verb|A => B| si y sólo si
+el término \verb|t| tiene tipo \verb|B| en el contexto $\Gamma,\verb|A|$.
+Una aplicación \verb|app t s|
+tiene tipo \verb|B| en el contexto $\Gamma$ si y sólo si
+el término \verb|t| tiene tipo \verb|A => B| en $\Gamma$
+y el término \verb|s| tiene el tipo \verb|A| en $\Gamma$,
+para algún tipo \verb|A| fresco.
+\bigskip
+
+Por ejemplo, el siguiente programa,
+instancia una variable simbólica fresca \verb|A| que representa un tipo.
+A continuación, exige que se verifique el juicio de tipado 
+$\emptyset \vdash \verb|lam (var Z)| :: \verb|A|$,
+es decir, exige que \verb|A| sea el tipo de la función identidad 
+en el contexto vacío.
+Por último, devuelve el tipo \verb|A|:
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+main () = print (
+                fresh A in
+                  ($\emptyset$ $\vdash$ lam (var Z) :: A)
+                  & A
+                ) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+El resultado es el tipo de la identidad.
+En una ejecución concreta se obtiene por ejemplo
+\verb|?{26964} => ?{26964}|,
+donde \verb|?{26964}| es una variable fresca que representa un tipo
+desconocido.
+Entonces, esto proporciona un inferidor de tipos donde, dado un término y una variable
+de tipo como incógnita, se calcula el valor del tipo correspondiente a este término.
+\bigskip
+
+La misma definición podría ser utilizada a la inversa
+para buscar exhaustivamente programas que tengan un cierto tipo.
+Por ejemplo, el programa:
+
+\begin{center}
+\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true]
+main () = print (
+                fresh t in
+                  ($\emptyset$ $\vdash$ t :: (BOOL => BOOL))
+                  & t
+                ) end
+\end{lstlisting}
+\end{tabular}
+\end{center}
+Genera todos los posibles términos que tienen tipo \verb|(BOOL => BOOL)|
+en el contexto vacío.
+Un posible resultado de este programa es el término \verb|(lam (var Z))|.
+Por la manera en que está escrito el programa, después de producir este
+resultado, \nuflo sigue buscando otros posibles programas del mismo tipo.
+Esta búsqueda nunca finaliza.
+
